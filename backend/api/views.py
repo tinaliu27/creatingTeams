@@ -18,9 +18,17 @@ def generateStudents():
     studentNames = ["Anna Solomon", "Brad Connor", "Charlie Bassen", "David Trump", "Easton Johns", "Fred Lim", "George Kim", "Hunter Olson", "Ivy Lewis", "Jason Derulo", "Kelsey Kann", "Leo Lam", "Mona Underwood", "Nina Vaughn", "Oscar Smith", "Paul Newman", "Quincy Adams", "Rachel Berry", "Sam Smith", "Trevor Lim", "Ursula King", "Victor King", "Wendy Williams", "Xavier Chang", "Yara Smith", "Zahra Irwin"]
     return studentNames
 
+def printStudents(request):
+    return JsonResponse({"message": generateStudents()})
+
 def generateStudentNumber(request):
     studentNumber = ''.join([str(random.randint(0, 9)) for _ in range(8)])
     return JsonResponse({"message": studentNumber})
+
+def generateRandomGender(request):
+    genders = ["Male", "Female", "Non-binary", "Other"]
+    gender = random.choice(genders)
+    return JsonResponse({"message": gender})
 
 def generateTeams(request):
     try:

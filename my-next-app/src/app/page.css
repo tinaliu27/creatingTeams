@@ -1,4 +1,60 @@
 body{ 
     background-color: #f8f9fa;
     color: black; 
-}
+}.home-table-container {
+    max-height: 400px; /* Adjust this value based on how tall you want the scrollable area */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-bottom: 20px;
+  }
+  
+  /* Table styling with more specific class names */
+  .home-student-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #ddd;
+    margin-top: 10px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .home-student-table th, .home-student-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Add alternating row colors */
+  .home-student-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .home-student-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Add some cute styling for headers */
+  .home-student-table th {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 14px;
+  }
+  
+  /* Styling for the select dropdown and button with specific class names */
+  .home-select, .home-button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .home-button {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .home-button:hover {
+    background-color: #45a049;
+  }
