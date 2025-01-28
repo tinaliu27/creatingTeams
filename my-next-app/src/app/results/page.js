@@ -1,10 +1,8 @@
-"use client";
-
+"use client"
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import '../results/results.css';
 import Header from "../../components/header";
-
 
 export default function Results() {
   const [teams, setTeams] = useState([]);
@@ -19,6 +17,7 @@ export default function Results() {
         const teamSize = searchParams.get("team_size");
         const students = JSON.parse(searchParams.get("students") || "[]");
         const studentNumbers = JSON.parse(searchParams.get("student_numbers") || "[]");
+        const genders = JSON.parse(searchParams.get("genders") || "[]"); // Get genders
 
         // Example fetch call (if needed) to generate teams
         const response = await fetch(
@@ -31,14 +30,15 @@ export default function Results() {
         const data = await response.json();
         setTeams(data.teams || []); // Ensure teams is always an array
 
-        // Combine students and student numbers in the result
-        const teamsWithNumbers = data.teams.map((team) =>
+        // Combine students, student numbers, and genders in the result
+        const teamsWithDetails = data.teams.map((team) =>
           team.map((member, index) => ({
             name: member,
             studentNumber: studentNumbers[students.indexOf(member)] || "N/A",
+            gender: genders[students.indexOf(member)] || "N/A"  // Add gender to the member
           }))
         );
-        setTeams(teamsWithNumbers);
+        setTeams(teamsWithDetails);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -57,7 +57,6 @@ export default function Results() {
   };
 
   return (
-    
     <div>
       <Header/>
       <div className="p-4">
@@ -80,6 +79,7 @@ export default function Results() {
                     <tr>
                       <th>Student Name</th>
                       <th>Student ID</th>
+                      <th>Gender</th> {/* Add gender column */}
                     </tr>
                   </thead>
                   <tbody>
@@ -87,6 +87,7 @@ export default function Results() {
                       <tr key={idx}>
                         <td>{member.name}</td>
                         <td>{member.studentNumber}</td>
+                        <td>{member.gender}</td> {/* Display gender */}
                       </tr>
                     ))}
                   </tbody>
