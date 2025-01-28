@@ -33,10 +33,8 @@ def generateRandomGender(request):
 def generateTeams(request):
     try:
         team_size = int(request.GET.get('team_size', 1))
-        names = generateStudents()  # Use the list directly
-        random.shuffle(names)  # Shuffle names to ensure randomness
-        
-        # Split names into teams
+        names = generateStudents() 
+        random.shuffle(names) 
         teams = [names[i:i + team_size] for i in range(0, len(names), team_size)]
         
         return JsonResponse({"teams": teams})
