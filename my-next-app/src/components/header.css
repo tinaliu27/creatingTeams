@@ -3,6 +3,9 @@
     display: flex; 
     align-items: center;
     flex-direction: column;
+    position: fixed; 
+    top: 0; 
+    z-index: 1000; /* Keeps it above other elements */
 }
 .header {
     background-color: #222234; 

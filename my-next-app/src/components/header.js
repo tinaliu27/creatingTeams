@@ -2,7 +2,7 @@
 
 import Link from 'next/link'; 
 import React, {createContext, useContext} from "react"; 
-import "../components/header.css";
+import "../header.css";
 
 const Header = () => {
     return (
@@ -21,7 +21,7 @@ const Header = () => {
             <div className = "headerSecond">
                 <ul className="flex space-x-12">
                     <li>
-                        <Link href="../app/layout.js">Sections</Link>
+                        <Link href="../">Sections</Link>
                     </li>
                     <li>
                         <Link href="../">Students</Link>
@@ -36,7 +36,7 @@ const Header = () => {
                         <Link href="">Surveys</Link>
                     </li>
                     <li>
-                        <Link href="">Teams</Link>
+                        <Link href="../team.js">Teams</Link>
                     </li>
                     <li>
                         <Link href="">Evaluations</Link>

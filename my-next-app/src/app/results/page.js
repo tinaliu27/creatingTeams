@@ -1,9 +1,10 @@
 "use client"
+
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import '../results/results.css';
 import Header from "../../components/header";
-
+import Footer from "../../components/footer";
 export default function Results() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,7 @@ export default function Results() {
           </div>
         )}
       </div>
+    <Footer/>
     </div>
   );
 }
