@@ -156,4 +156,39 @@
     display: flex; 
     width: 100%; 
     border: 1px solid rgb(187, 187, 187); 
+    padding: 20px; 
 }
+.teamInfo {
+    display: flex; 
+    width: 100%; 
+    flex-direction: column;
+}
+.teamInfoAttributes {
+    display: flex; 
+    flex-direction: row;
+    width: 100%; 
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 40px; 
+}
+.studentTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .studentTable th, .studentTable td {
+    padding: 10px;
+    text-align: left; /* Aligns the text to the left */
+    border: 1px solid #ddd;
+  }
+  
+  .studentTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  .selectedTeam {
+    display: none; /* This div should not interfere with the table */
+  }
+  
