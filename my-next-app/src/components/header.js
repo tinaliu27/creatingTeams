@@ -2,7 +2,7 @@
 
 import Link from 'next/link'; 
 import React, {createContext, useContext} from "react"; 
-import "../header.css";
+import "../components/header.css";
 
 const Header = () => {
     return (
@@ -36,7 +36,7 @@ const Header = () => {
                         <Link href="">Surveys</Link>
                     </li>
                     <li>
-                        <Link href="../team.js">Teams</Link>
+                        <Link href="/team">Teams</Link>
                     </li>
                     <li>
                         <Link href="">Evaluations</Link>

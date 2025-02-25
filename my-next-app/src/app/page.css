@@ -3,11 +3,11 @@ body{
     color: black; 
 }
 .pageContent {
-  padding-top: 130px; 
+  padding-top: 135px; 
 }
 
 .home-table-container {
-    max-height: 400px; /* Adjust this value based on how tall you want the scrollable area */
+    max-height: 400px; 
     overflow-y: auto; /* Enable vertical scrolling */
     margin-bottom: 20px;
   }
