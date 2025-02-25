@@ -1,8 +1,13 @@
 body{ 
     background-color: #f8f9fa;
     color: black; 
-}.home-table-container {
-    max-height: 400px; /* Adjust this value based on how tall you want the scrollable area */
+}
+.pageContent {
+  padding-top: 135px; 
+}
+
+.home-table-container {
+    max-height: 400px; 
     overflow-y: auto; /* Enable vertical scrolling */
     margin-bottom: 20px;
   }

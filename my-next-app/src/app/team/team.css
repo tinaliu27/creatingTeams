@@ -1,0 +1,159 @@
+.teamContents {
+    background-color: #f8f9fa;
+}
+
+.pageContents {
+    margin-top: 135px;
+    padding-top: 10px; 
+}
+
+.teamContainer {
+    display: flex;
+    background-color: white;
+    margin: 40px 30px;
+    border: 1px solid rgb(210, 210, 210);
+    padding: 10px;
+    flex-direction: column;
+}
+
+.teamSettings {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.teamSettingsDropdownMenu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 16px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.teamSettingsDropdownMenu h1 {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.arrow {
+    transition: transform 0.3s ease-in-out;
+    margin-left: auto;
+}
+
+.rotate {
+    transform: rotate(180deg);
+}
+
+.dropdownList {
+    padding: 10px;
+    border: 1px solid black;
+}
+
+/* Visualize Team Settings */
+.visualizeTeamSettingsContainer {
+    margin-top: 15px;
+}
+
+.visualizeTeamSettings {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.visualizeTeamSettings h1 {
+    font-size: 25px;
+    font-weight: 600;
+}
+
+.visualizeTeamSettings hr {
+    height: 2px;
+    color: black;
+}
+
+.visualizeTeamSettings .attributeButtons {
+    flex-direction: row;
+    display: flex;
+    gap: 20px;
+}
+
+.visualizeTeamSettings button {
+    padding: 10px;
+    display: flex;
+    border: 1px solid #2180d6;
+    color: #2180d6;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.visualizeTeamSettings button:hover {
+    color: white;
+    background-color: #2180d6;
+}
+
+.visualizeTeamSettings button.selected {
+    background-color: #2180d6;
+    color: white;
+    border: 1px solid #0056b3;
+}
+/*Table Css */
+.visualizeChartContainer .visualizationTable {
+    width: 100%;
+    border-collapse: collapse; 
+}
+
+.visualizationTable thead {
+    border-top: 1px solid gray;
+}
+
+.visualizationTable thead tr {
+    display: table-row; 
+    width: 100%;
+    text-align: center;
+}
+
+.visualizationTable tbody {
+    display: table-row-group; 
+    text-align: center;
+}
+
+.visualizationTable tbody tr {
+    display: table-row; 
+    width: 100%;
+    align-items: center;
+}
+
+.visualizationTable th,
+.visualizationTable td {
+    padding: 10px;
+    text-align: center;
+    width: auto;
+}
+.visualizationTable tbody tr:nth-child(odd) {
+    background-color: #f1f1f1; /* Light gray for every odd row */
+}
+
+.visualizationTable tbody tr:nth-child(even) {
+    background-color: white; /* White for even rows */
+}
+.dragDropContainer {
+    display: flex;
+    width: 100%; 
+    justify-content: space-between;
+}
+.dragDrop {
+    display: flex;
+    width: 23%; 
+}
+/*Team Selected*/
+.teamInfoContainer {
+    display: flex; 
+    width: 100%; 
+    border: 1px solid rgb(187, 187, 187); 
+}

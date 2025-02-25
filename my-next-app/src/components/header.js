@@ -21,7 +21,7 @@ const Header = () => {
             <div className = "headerSecond">
                 <ul className="flex space-x-12">
                     <li>
-                        <Link href="../app/layout.js">Sections</Link>
+                        <Link href="../">Sections</Link>
                     </li>
                     <li>
                         <Link href="../">Students</Link>
@@ -36,7 +36,7 @@ const Header = () => {
                         <Link href="">Surveys</Link>
                     </li>
                     <li>
-                        <Link href="">Teams</Link>
+                        <Link href="/team">Teams</Link>
                     </li>
                     <li>
                         <Link href="">Evaluations</Link>
