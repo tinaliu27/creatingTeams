@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "../../components/header";
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import Footer from "../../components/footer"; 
 import "../team/team.css";
 import TeamHeader from "../../components/teamHeader"; 
@@ -121,11 +121,19 @@ export default function Team() {
     const [isOpen, setIsOpen] = useState(false); 
     const [selectedAttributes, setSelectedAttributes] = useState(new Set());
     const [visualizationTypes, setVisualizationTypes] = useState({});
-    const [teams, setTeams] = useState(initialTeams);
     const [selectedTeam, setSelectedTeam] = useState(null); 
     const [search, setSearch] = useState(''); 
     const [selectedColor, setSelectedColor] = useState("");
+    const [teams, setTeams] = useState([]); // Stores all teams
 
+    useEffect(() => {
+        fetch("http://127.0.0.1:8000/api/getTeams/")
+            .then((response) => response.json())
+            .then((data) => {
+                setTeams(data.teams);
+            })
+            .catch((error) => console.error("Error fetching teams:", error));
+    }, []);
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen); 

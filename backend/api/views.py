@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 import datetime
 import random 
+from .models import Team
+from django.views.decorators.csrf import csrf_exempt
+
 
 # Create your views here.
 class HelloWorld(APIView):
@@ -40,3 +43,54 @@ def generateTeams(request):
         return JsonResponse({"teams": teams})
     except ValueError:
         return JsonResponse({"error": "Invalid team size"}, status=400)
+
+def save_team_data(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)  # Parse JSON data from the frontend
+            
+            # Create a new team entry in the database
+            team = Team.objects.create(
+                team_size=data.get("team_size"),
+                students=data.get("students", []),
+                student_numbers=data.get("student_numbers", []),
+                genders=data.get("genders", []),
+                diversify_gender=data.get("diversify_gender", False),
+                match_preferences=data.get("match_preferences", False)
+            )
+            
+            return JsonResponse({"message": "Team data saved successfully!", "team_id": team.id}, status=201)
+        
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+def format_teams_data(teams):
+    formatted_teams = []
+
+    for index, team in enumerate(teams, start=1):
+        formatted_teams.append({
+            "id": f"team-{index}",
+            "name": f"Team {index}",
+            "people": [
+                {"name": student["name"], "studentID": student["studentID"], "gender": student["gender"]}
+                for student in team.students  # Assuming 'students' is stored as a list in the model
+            ],
+            "color": team.color if hasattr(team, 'color') else "red"  # Default color is "red"
+        })
+
+    return formatted_teams
+
+def getTeams(request):
+    if request.method == "GET":
+        try:
+            teams = Team.objects.all()  # Fetch all teams from the database
+            formatted_teams = format_teams_data(teams)  # Format the teams
+            
+            return JsonResponse({"teams": formatted_teams}, status=200, safe=False)
+        
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)

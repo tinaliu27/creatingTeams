@@ -1,5 +1,5 @@
 from django.urls import path 
-from .views import HelloWorld, current_datetime, generateStudents, generateStudentNumber, generateTeams, printStudents, generateRandomGender
+from .views import HelloWorld, current_datetime, generateStudents, generateStudentNumber, generateTeams, printStudents, generateRandomGender, getTeams
 from . import views 
 urlpatterns = [
     path('hello/', HelloWorld.as_view(), name='message'),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('generateTeams/', generateTeams, name="generateTeams"), 
     path('printStudents/', printStudents, name="printStudents"), 
     path('assignGender/', generateRandomGender, name="assignGender"), 
+    path('getTeams/', getTeams, name="getNames"),
 ]
