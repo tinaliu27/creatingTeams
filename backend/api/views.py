@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 import datetime
 import random
-from .models import Team
+from .models import Team, TeamGeneration, Student
 from django.views.decorators.csrf import csrf_exempt
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -20,7 +23,39 @@ def current_datetime(request):
     return JsonResponse({"message": f"It is now {now}"})
 
 
-def generateStudents():
+def generateStudents(request):
+    students = []
+    studentNames = generateStudentNames()
+    for i in range(26):
+        student = Student.objects.create(
+            studentID=generateStudentNumber(),
+            name=studentNames[i],
+            gender=generateRandomGender(),
+            academicHistory=generateRandomAcademicHistory(),
+            timeSlot=generateTimeslotAvailability(),
+            enemy=random.choice(studentNames),
+            PM=generatePM(),
+            projectPreference=generateProjectPreference(),
+        )
+        students.append(student)
+
+    students_data = [
+        {
+            "studentID": student.studentID,
+            "name": student.name,
+            "gender": student.gender,
+            "academicHistory": student.academicHistory,
+            "timeSlot": student.timeSlot,
+            "enemy": student.enemy,
+            "PM": student.PM,
+            "projectPreference": student.projectPreference,
+        }
+        for student in students
+    ]
+    return JsonResponse(students_data, safe=False)
+
+
+def generateStudentNames():
     studentNames = [
         "Anna Solomon",
         "Brad Connor",
@@ -53,43 +88,69 @@ def generateStudents():
 
 
 def printStudents(request):
-    return JsonResponse({"message": generateStudents()})
+    students = generateStudents()
+    students_data = [
+        {
+            "studentID": student.studentID,
+            "name": student.name,
+            "gender": student.gender,
+            "academicHistory": student.academicHistory,
+            "timeSlot": student.timeSlot,
+            "enemy": student.enemy,
+            "PM": student.PM,
+            "projectPreference": student.projectPreference,
+        }
+        for student in students
+    ]
+    return JsonResponse({"students": students_data})
 
 
-def generateStudentNumber(request):
+def generateStudentNumber():
     studentNumber = "".join([str(random.randint(0, 9)) for _ in range(8)])
-    return JsonResponse({"message": studentNumber})
+    return studentNumber
 
 
-def generateRandomGender(request):
+def generateRandomGender():
     genders = ["Male", "Female", "Non-binary", "Other"]
     gender = random.choice(genders)
-    return JsonResponse({"message": gender})
+    return gender
 
-def generateRandomAcademicHistory(request):
+
+def generateRandomAcademicHistory():
     academicHistory = ["0-50%", "50-60%", "70-80%", "80-90%", "90-100%"]
     academicHistory = random.choice(academicHistory)
-    return JsonResponse({"message": academicHistory})
+    return academicHistory
 
-def generateTimeslotAvailability(request):
+
+def generateTimeslotAvailability():
     timeSlot = ["6-9 am", "9-12 pm", "12-3 pm", "3-6 pm", "6-9 pm", "9-12 am"]
     timeSlot = random.choice(timeSlot)
-    return JsonResponse({"message": timeSlot})
+    return timeSlot
 
-def generateEnemies(request):
+
+def generateEnemies():
     students = generateStudents()
     enemies = random.choice(students)
-    return JsonResponse({"message": enemies})
+    return enemies
 
-def generatePM(request): 
-    experience = ["no answer", "no experience", "minimal experience in small projects", "some experience in multiple projects", "lots of experience"]
+
+def generatePM():
+    experience = [
+        "",
+        "no experience",
+        "minimal experience in small projects",
+        "some experience in multiple projects",
+        "lots of experience",
+    ]
     experience = random.choice(experience)
-    return JsonResponse({"message": experience})
+    return experience
 
-def generateProjectPreference(request):
-    project = ["Project 1", "Project 2", "No answer"]
+
+def generateProjectPreference():
+    project = ["Project 1", "Project 2", ""]
     project = random.choice(project)
-    return JsonResponse({"message": project})
+    return project
+
 
 def generateTeams(request):
     try:
@@ -98,73 +159,168 @@ def generateTeams(request):
         random.shuffle(names)
         teams = [names[i : i + team_size] for i in range(0, len(names), team_size)]
 
+        # all data
+        studentNumber = generateStudentNumber()
+        gender = generateRandomGender()
+        generatedTeamName = request.GET.get("team_size")
+        response_data = {"generateTeamName": generatedTeamName, "teams": []}
         return JsonResponse({"teams": teams})
     except ValueError:
         return JsonResponse({"error": "Invalid team size"}, status=400)
 
+def getTeams(request):
+    if request.method == "GET":
+        try:
+            # Extract the query parameter 'generate_team_name'
+            generate_team_name = request.GET.get("generate_team_name")
+            print(f"Received generate_team_name: {generate_team_name}")  # Debugging
+
+            # Validate the presence of the generate_team_name parameter
+            if not generate_team_name:
+                return JsonResponse({"error": "Missing 'generate_team_name' parameter"}, status=400)
+
+
+            # Query Team objects by the related TeamGeneration's 'generate_team_name'
+            teams = Team.objects.filter(team_generations__generate_team_name=generate_team_name)
+
+            # Debug: Check if any teams were found
+            print(f"Found teams: {teams}")  # Debugging
+
+            # If no teams are found for the given generate_team_name, return a 404
+            if not teams:
+                return JsonResponse({"error": "No teams found for this team generation name"}, status=404)
+
+            # Prepare team data
+            teams_data = [
+                {
+                    "title": team.name,
+                    "students": [
+                        {
+                            "name": student.name,
+                            "studentID": student.studentID,
+                            "gender": student.gender,
+                        }
+                        for student in team.students.all()
+                    ],
+                }
+                for team in teams
+            ]
+
+            # Return a successful response with teams data
+            return JsonResponse({"teams": teams_data}, status=200)
+
+        except Exception as e:
+            # Return any error that occurs during processing
+            return JsonResponse({"error": str(e)}, status=400)
+
+    # Return error if the method is not GET
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 @csrf_exempt
 def saveTeamData(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)  # Parse JSON data from the frontend
+            # Parse the request body into a JSON object
+            data = json.loads(request.body)
 
-            # Create a new team entry in the database
-            team = Team.objects.create(
-                title=data.get("title", []),
-                team_size=data.get("team_size"),
-                students=data.get("students", []),
-                student_numbers=data.get("student_numbers", []),
-                genders=data.get("genders", []),
-                diversify_gender=data.get("diversify_gender", False),
-                match_preferences=data.get("match_preferences", False),
+            # Extract the relevant fields from the data
+            generate_team_name = data.get("generate_team_name")
+            diversify_gender = data.get("diversify_gender")
+            match_preferences = data.get("match_preferences")
+            teams = data.get("teams")
+            # Ensure 'teams' is a list
+            if not isinstance(teams, list):
+                return JsonResponse({"error": "'teams' must be a list"}, status=400)
+
+            # Ensure 'generate_team_name' is not empty or None
+            if not generate_team_name:
+                return JsonResponse(
+                    {"error": "'generateTeamName' is required"}, status=400
+                )
+
+            # Check if a TeamGeneration with the same name already exists
+            team_generation, created = TeamGeneration.objects.get_or_create(
+                generate_team_name=generate_team_name,
+                defaults={
+                    "diversify_gender": diversify_gender,
+                    "match_preferences": match_preferences,
+                },
             )
 
+            if not created:
+                # If a TeamGeneration with this name already exists
+                return JsonResponse(
+                    {
+                        "error": f"A TeamGeneration with the name '{generate_team_name}' already exists."
+                    },
+                    status=400,
+                )
+
+            created_teams = []  # Initialize the list to store created teams
+            print("Proceeding to create teams...")
+
+            # Loop through the teams and create each one
+            for team_data in teams:
+                team_id = team_data.get("id", "")
+                team_name = team_data.get("name", "")
+                people = team_data.get("people", [])
+                color = team_data.get(
+                    "color", "green"
+                )  # Default to 'yellow' if not provided
+
+                # Ensure required fields are present
+                if not team_id or not team_name or not isinstance(people, list):
+                    return JsonResponse(
+                        {"error": "Missing or invalid fields in team data"}, status=400
+                    )
+
+                # Create the Team instance
+                team = Team.objects.create(
+                    name=team_name,
+                    color=color,
+                )
+                print(f"Created Team: {team.name} with ID: {team.id} and Color: {team.color}")
+
+                # Extract student IDs and create relationships with Student objects
+                student_objects = []
+                for person in people:
+                    student_id = person.get("studentID")
+                    if student_id:
+                        # Get or create the student based on the studentID
+                        student = Student.objects.get(studentID=student_id)
+                        student_objects.append(student)
+                    else:
+                        return JsonResponse(
+                            {"error": "Each person must have a valid 'studentID'"},
+                            status=400,
+                        )
+
+                # Assign the students to the team
+                team.students.set(student_objects)
+
+                # Add the created team to the TeamGeneration instance
+                team_generation.teams.add(team)
+
+                # Append the created team info to the list
+                created_teams.append(
+                    {"team_id": team.id, "name": team.name, "color": team.color}
+                )
+
+            # Return success response with created teams
             return JsonResponse(
-                {"message": "Team data saved successfully!", "team_id": team.id},
+                {"message": "Teams saved successfully!", "teams": created_teams},
                 status=201,
             )
 
+        except json.JSONDecodeError:
+            # Handle invalid JSON format
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+
         except Exception as e:
+            # Log the error for debugging
+            logger.error(f"Error saving team data: {str(e)}")
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-def format_teams_data(teams):
-    formatted_teams = []
-
-    for index, team in enumerate(teams, start=1):
-        formatted_teams.append(
-            {
-                "id": f"team-{index}",
-                "name": f"Team {index}",
-                "people": [
-                    {
-                        "name": student["name"],
-                        "studentID": student["studentID"],
-                        "gender": student["gender"],
-                    }
-                    for student in team.students  # Assuming 'students' is stored as a list in the model
-                ],
-                "color": (
-                    team.color if hasattr(team, "color") else "red"
-                ),  # Default color is "red"
-            }
-        )
-
-    return formatted_teams
-
-
-def getTeams(request):
-    if request.method == "GET":
-        try:
-            teams = Team.objects.all()  # Fetch all teams from the database
-            formatted_teams = format_teams_data(teams)  # Format the teams
-
-            return JsonResponse({"teams": formatted_teams}, status=200, safe=False)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)

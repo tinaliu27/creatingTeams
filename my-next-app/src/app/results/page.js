@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import '../results/results.css';
+import "../results/results.css";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
+
 export default function Results() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,48 +16,31 @@ export default function Results() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const teamSize = searchParams.get("team_size");
-        const students = JSON.parse(searchParams.get("students") || "[]");
-        const studentNumbers = JSON.parse(searchParams.get("student_numbers") || "[]");
-        const genders = JSON.parse(searchParams.get("genders") || "[]"); // Get genders
+        const generateTeamName = searchParams.get("generate_team_name"); // Get team name from URL query
+        console.log(generateTeamName);
 
-        // Example fetch call (if needed) to generate teams
+        const queryParams = new URLSearchParams();
+        queryParams.append("generate_team_name", generateTeamName);
+          
         const response = await fetch(
-          `http://127.0.0.1:8000/api/generateTeams/?team_size=${teamSize}`
+          `http://127.0.0.1:8000/api/getTeams/?generate_team_name=${generateTeamName}`
         );
+        console.log("Response status:", response.status);  // Debugging
+
 
         if (!response.ok) {
           throw new Error("Failed to fetch teams");
         }
+
         const data = await response.json();
-        setTeams(data.teams || []); // Ensure teams is always an array
+        setTeams(data.teams || []); // Assuming the response has a "teams" array
 
-        // Combine students, student numbers, and genders in the result
-        const teamsWithDetails = data.teams.map((team) =>
-          team.map((member, index) => ({
-            name: member,
-            studentNumber: studentNumbers[students.indexOf(member)] || "N/A",
-            gender: genders[students.indexOf(member)] || "N/A"  // Add gender to the member
-          }))
-        );
-        setTeams(teamsWithDetails);
-
-        await fetch("http://127.0.0.1:8000/api/saveTeams/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            team_size: teamSize,
-            teams: teamsWithDetails
-          }),
-        });
-        
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchTeams();
   }, [searchParams]);
 
@@ -64,12 +48,11 @@ export default function Results() {
   if (error) return <p>Error: {error}</p>;
 
   const handleBack = () => {
-    router.push("/"); // Goes back to the homepage
+    router.push("/"); // Navigate back to the homepage
   };
-
   return (
     <div>
-      <Header/>
+      <Header />
       <div className="p-4">
         <h1 className="text-xl font-bold mb-4">Generated Teams</h1>
         <button
@@ -84,21 +67,21 @@ export default function Results() {
           <div className="teams-grid">
             {teams.map((team, index) => (
               <div key={index} className="team-card">
-                <h2 className="font-semibold text-lg mb-2">Team {index + 1}</h2>
+                <h2 className="font-semibold text-lg mb-2">{team.title}</h2>
                 <table className="team-table">
                   <thead>
                     <tr>
                       <th>Student Name</th>
                       <th>Student ID</th>
-                      <th>Gender</th> {/* Add gender column */}
+                      <th>Gender</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {team.map((member, idx) => (
+                    {team.students.map((student, idx) => (
                       <tr key={idx}>
-                        <td>{member.name}</td>
-                        <td>{member.studentNumber}</td>
-                        <td>{member.gender}</td> {/* Display gender */}
+                        <td>{student.name}</td>
+                        <td>{student.studentID}</td>
+                        <td>{student.gender}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -108,7 +91,7 @@ export default function Results() {
           </div>
         )}
       </div>
-    <Footer/>
+      <Footer />
     </div>
   );
 }

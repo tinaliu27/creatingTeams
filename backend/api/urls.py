@@ -14,8 +14,12 @@ from .views import (
     generateEnemies, 
     generatePM, 
     generateProjectPreference,
+    generateStudentNames,
+    generateStudents,
+    saveTeamData,
 )
 from . import views
+
 
 urlpatterns = [
     path("hello/", HelloWorld.as_view(), name="message"),
@@ -32,6 +36,5 @@ urlpatterns = [
     path("generateEnemies", generateEnemies, name="generateEnemies"), 
     path("generatePM", generatePM, name="generatePM"), 
     path("generateProjectPreference", generateProjectPreference, name="generateProjectPreference"), 
-
-
+    path("generateStudentNames", generateStudentNames, name="generateStudentNames"),
 ]
