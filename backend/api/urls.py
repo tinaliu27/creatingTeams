@@ -17,6 +17,8 @@ from .views import (
     generateStudentNames,
     generateStudents,
     saveTeamData,
+    getAllGeneratedTeamNames,
+    getGeneratedTeamDetails,
 )
 from . import views
 
@@ -37,4 +39,7 @@ urlpatterns = [
     path("generatePM", generatePM, name="generatePM"), 
     path("generateProjectPreference", generateProjectPreference, name="generateProjectPreference"), 
     path("generateStudentNames", generateStudentNames, name="generateStudentNames"),
+    path("getAllGeneratedTeamNames/", getAllGeneratedTeamNames, name="getAllGeneratedTeamNames"),
+    path("getGeneratedTeamDetails/", getGeneratedTeamDetails, name="getGeneratedTeamDetails"),
+
 ]
