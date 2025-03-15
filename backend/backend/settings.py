@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "api",
     "corsheaders",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,5 @@ CSRF_TRUSTED_ORIGINS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+
+ASGI_APPLICATION = "backend.asgi.application"

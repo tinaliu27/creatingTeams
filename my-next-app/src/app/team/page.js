@@ -6,143 +6,151 @@ import Footer from "../../components/footer";
 import "../team/team.css";
 import TeamHeader from "../../components/teamHeader"; 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
-const initialTeams = [
-    { id: "team-1", name: "Team 1", people: [
-        { name: "Alice", studentID: "123", gender: "Female" }, 
-        { name: "Bob", studentID: "456", gender: "Male" }
-      ], color: "red" },
-    { id: "team-2", name: "Team 2", people: [
-        { name: "Charlie", studentID: "789", gender: "Male" }, 
-        { name: "David", studentID: "012", gender: "Male" }
-      ],  color: "green" },
-      { 
-        id: "team-3", 
-        name: "Team 3", 
-        people: [
-          { name: "Eve", studentID: "345", gender: "Female" },
-          { name: "Frank", studentID: "678", gender: "Male" }
-        ], 
-        color: "red" 
-      },
-      { 
-        id: "team-4", 
-        name: "Team 4", 
-        people: [
-          { name: "Grace", studentID: "901", gender: "Female" },
-          { name: "Hank", studentID: "234", gender: "Male" }
-        ], 
-        color: "green" 
-      },
-      { 
-        id: "team-5", 
-        name: "Team 5", 
-        people: [
-          { name: "Ivy", studentID: "567", gender: "Female" },
-          { name: "Jack", studentID: "890", gender: "Male" }
-        ], 
-        color: "red" 
-      },
-      { 
-        id: "team-6", 
-        name: "Team 6", 
-        people: [
-          { name: "Karen", studentID: "1234", gender: "Female" },
-          { name: "Leo", studentID: "5678", gender: "Male" }
-        ], 
-        color: "yellow" 
-      },
-      { 
-        id: "team-7", 
-        name: "Team 7", 
-        people: [
-          { name: "Mona", studentID: "2345", gender: "Female" },
-          { name: "Nash", studentID: "6789", gender: "Male" }
-        ], 
-        color: "green" 
-      },
-      { 
-        id: "team-8", 
-        name: "Team 8", 
-        people: [
-          { name: "Olivia", studentID: "3456", gender: "Female" },
-          { name: "Paul", studentID: "7890", gender: "Male" }
-        ], 
-        color: "green" 
-      },
-      { 
-        id: "team-9", 
-        name: "Team 9", 
-        people: [
-          { name: "Quinn", studentID: "4567", gender: "Female" },
-          { name: "Rick", studentID: "8901", gender: "Male" }
-        ], 
-        color: "yellow" 
-      },
-      { 
-        id: "team-10", 
-        name: "Team 10", 
-        people: [
-          { name: "Sophie", studentID: "5678", gender: "Female" },
-          { name: "Tom", studentID: "9012", gender: "Male" }
-        ], 
-        color: "red" 
-      },
-      { 
-        id: "team-11", 
-        name: "Team 11", 
-        people: [
-          { name: "Uma", studentID: "6789", gender: "Female" },
-          { name: "Vince", studentID: "1230", gender: "Male" }
-        ], 
-        color: "green" 
-      },
-      { 
-        id: "team-12", 
-        name: "Team 12", 
-        people: [
-          { name: "Wendy", studentID: "7891", gender: "Female" },
-          { name: "Xander", studentID: "2341", gender: "Male" }
-        ], 
-        color: "yellow" 
-      },
-      { 
-        id: "team-13", 
-        name: "Team 13", 
-        people: [
-          { name: "Yara", studentID: "8902", gender: "Female" },
-          { name: "Zane", studentID: "3450", gender: "Male" }
-        ], 
-        color: "yellow" 
-      },
-    ]
+import { useSearchParams } from "next/navigation"; // Ensure you're using this for query parameters
+import PieChart from "../../components/PieChart";
+import BarChart from "../../components/BarChart";
+import RadarChart from "../../components/RadarChart";
+import Heatmap from "../../components/Heatmap";
 
 export default function Team() {
+    const searchParams = useSearchParams(); // Get query parameters
+
     const [isOpen, setIsOpen] = useState(false); 
     const [selectedAttributes, setSelectedAttributes] = useState(new Set());
     const [visualizationTypes, setVisualizationTypes] = useState({});
     const [selectedTeam, setSelectedTeam] = useState(null); 
+    const [initialTeams, setInitialTeams] = useState([]);
     const [search, setSearch] = useState(''); 
     const [selectedColor, setSelectedColor] = useState("");
     const [teams, setTeams] = useState([]); // Stores all teams
+    const [error, setError] = useState(null); 
+    const [loading, setLoading] = useState([]); 
+    const generateTeamName = searchParams.get("generate_team_name"); // Get the team name from the URL
+    const [socket, setSocket] = useState(null);
+
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/api/getTeams/")
-            .then((response) => response.json())
-            .then((data) => {
-                setTeams(data.teams);
-            })
-            .catch((error) => console.error("Error fetching teams:", error));
+        const fetchTeamDetails = async () => {
+            try {
+                if (!generateTeamName) {
+                    throw new Error("No team name, can't retrieve the right data."); 
+                }
+                const queryParams = new URLSearchParams();
+                queryParams.append("generate_team_name", generateTeamName);
+          
+            
+                const teamDetails = await fetch(`http://127.0.0.1:8000/api/getTeams/?generate_team_name=${generateTeamName}`);
+                console.log("Response status:", teamDetails.status); 
+
+                if (!teamDetails.ok) {
+                    throw new Error("Failed to fetch the team details"); 
+                }
+                const data = await teamDetails.json(); 
+                if (!data.teams || data.teams.length === 0) {
+                    throw new Error("No teams found.");
+                }
+        
+                setTeams(data.teams.map(team => ({
+                    name: team.title,  // Ensure name matches API's "title"
+                    students: team.students,  // Keep student details if needed
+                    color: "#00000"  // Default color (can be dynamic)
+                })));
+               
+                setInitialTeams(data.teams.map(team => ({
+                    name: team.title,  // Ensure name matches API's "title"
+                    students: team.students,  // Keep student details if needed
+                    color: "#f0f0f0"  // Default color (can be dynamic)
+                })));
+                
+            } catch (err) {
+                setError(err.message); 
+            } finally {
+                setLoading(false); 
+            }
+        }
+        const fetchTeamGenerationDetails = async () => {
+          try {
+            if (!generateTeamName) {
+              throw new Error("Team name is missing in the URL");
+            }
+    
+            const response = await fetch(
+              `http://127.0.0.1:8000/api/getGeneratedTeamDetails/?generate_team_name=${generateTeamName}`
+            );
+            console.log(response); 
+            if (!response.ok) {
+              throw new Error("Failed to fetch teams");
+            }
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchTeamDetails(); 
+
+      }, [generateTeamName]);
+
+      useEffect(() => {
+        // Ensure WebSocket only runs in the browser
+        if (typeof window !== "undefined") {
+            try {
+                const socket = new WebSocket('ws://' + window.location.host + '/ws/team-change/');
+
+                // WebSocket open event
+                socket.onopen = () => {
+                    console.log("WebSocket connection established");
+                };
+
+                // WebSocket message event
+                socket.onmessage = function (e) {
+                    const data = JSON.parse(e.data);
+                    const playerId = data.player_id;
+                    const newTeamName = data.new_team_name;
+                    // Update the UI with the new team name
+                    document.getElementById(`player-${playerId}`).innerText = newTeamName;
+                };
+
+                // WebSocket error handling
+                socket.onerror = (error) => {
+                    console.error("WebSocket Error:", error);
+                    setError("Failed to connect to the WebSocket server.");
+                };
+
+                // WebSocket close event
+                socket.onclose = (event) => {
+                    if (event.wasClean) {
+                        console.log("WebSocket closed cleanly");
+                    } else {
+                        console.error("WebSocket closed with error");
+                        setError("WebSocket connection closed with an error.");
+                    }
+                };
+
+                // Save the socket to state
+                setSocket(socket);
+            } catch (err) {
+                console.error("Error establishing WebSocket connection:", err);
+                setError("Failed to establish WebSocket connection.");
+            }
+        }
     }, []);
 
+        // Extract students and teams
+    const students = teams.length > 0 ? teams.flatMap((team) => team.students) : [];
+    const maxTeamSize = teams.length > 0 ? Math.max(...teams.map((team) => team.students.length)) : 0;
+    const minTeamSize = teams.length > 0 ? Math.min(...teams.map((team) => team.students.length)) : 0;
+  
+        
     const toggleDropdown = () => {
         setIsOpen(!isOpen); 
     };
 
     const teamSettings = [
-        {id: 1, text: 'Total Team Size'},
-        {id: 2, text: 'Max Team Size'},
-        {id: 3, text: 'Min Team Size'},
+        {id: 1, text: 'Total Team Size', textValue: students.length || 0},
+        {id: 2, text: 'Max Team Size', textValue: maxTeamSize},
+        {id: 3, text: 'Min Team Size', textValue: Math.min(...teams.map(team => team.students.length))},
         {id: 4, text: 'Project Set'},
         {id: 5, text: 'List Options'},
         {id: 6, text: 'Behaviour Option'},
@@ -184,6 +192,13 @@ export default function Team() {
         projectPreference: "Preferences for projects and friends/enemies"
     };
     
+    // Toggle chart visibility for an attribute
+    const toggleChartVisibility = (attribute) => {
+        setShowCharts((prev) => ({
+        ...prev,
+        [attribute]: !prev[attribute],
+        }));
+    };
 
     const toggleAttributeSelect = (attribute) => {
         setSelectedAttributes((prev) => {
@@ -199,6 +214,7 @@ export default function Team() {
             [attribute]: option,
         }));
     };
+
 
     // drag and drop 
     const onDragEnd = (result) => {
@@ -236,19 +252,49 @@ export default function Team() {
     const filteredData = data.filter(item => 
         item.toLowerCase().includes(search.toLowerCase())
       );
-    const handleTeamChange = (person, newTeamName) => {
-        // Update the team for a specific person
-        const updatedTeams = initialTeams.map((team) => {
-          if (team.name === newTeamName) {
-            return {
-              ...team,
-              people: [...team.people, person]  // Add the person to the selected team
-            };
-          }
-          return team;
-        });
-        setSelectedTeam(updatedTeams.find((team) => team.name === newTeamName)); // Set the updated team as selected
-      };
+    const handleTeamChange = async (person, newTeamName) => {
+        try {
+            // Make the API call to move the student to the new team
+            const response = await fetch(`http://127.0.0.1:8000/api/moveStudent/?generate_team_name=${generateTeamName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    studentID: person.studentID, 
+                    newTeamID: newTeamName, 
+                    generateTeamName: generateTeamName,
+                }),
+            });
+    
+            if (response.ok) {
+                // If the response is successful, parse the response as JSON
+                const result = await response.json();
+                console.log('Student moved successfully:', result);
+    
+                // Update the UI with the new team
+                const updatedTeams = initialTeams.map((team) => {
+                    if (team.name === newTeamName) {
+                        return {
+                            ...team,
+                            people: [...team.students, person], // Add the person to the selected team
+                        };
+                    }
+                    return team;
+                });
+    
+                setSelectedTeam(updatedTeams.find((team) => team.name === newTeamName)); // Set the updated team as selected
+            } else {
+                // If there's an error, parse the error message as text and log it
+                const errorText = await response.text();  // Get response as text in case of error
+                console.error('API Error:', errorText);
+            }
+        } catch (error) {
+            console.error('Error while making API call:', error);
+        }
+    };
+    
+      
     return (
         <div className="teamContents">
             <Header />
@@ -266,6 +312,7 @@ export default function Team() {
                                     {teamSettings.map((item) => (
                                         <li key={item.id} className="dropdownItem">
                                             {item.text}
+                                            {item.textValue}
                                         </li>
                                     ))}
                                 </ul>
@@ -341,7 +388,7 @@ export default function Team() {
 
                     <div className="visualizeTeamsContainer">
                         <div className="visualizeTeams">
-                            <h1>asdasda - Teams</h1>
+                            <h1>{generateTeamName} - Teams</h1>
                             <hr></hr>
                             <h2>Section(s) used to generate teams: </h2>
                             {/* Search Bar
@@ -364,7 +411,7 @@ export default function Team() {
                                 </div>
                                  */}
                             <div className = "dragDropContainer">
-                                <div className = "dragDrop">
+                                <div className="dragDrop">
                                     <DragDropContext onDragEnd={onDragEnd}>
                                         <div style={{ padding: "20px" }}>
                                             <Droppable droppableId="all-teams" direction="vertical">
@@ -383,8 +430,8 @@ export default function Team() {
                                                             overflowX: "hidden",
                                                         }}
                                                     >
-                                                        {teams.map((team, index) => (
-                                                            <Draggable key={team.id} draggableId={team.id} index={index}>
+                                                        {teams.length > 0 ? teams.map((team, index) => (
+                                                            <Draggable key={team.name} draggableId={team.name} index={index}>
                                                                 {(provided) => (
                                                                     <div
                                                                         ref={provided.innerRef}
@@ -398,7 +445,6 @@ export default function Team() {
                                                                             textAlign: "center",
                                                                             cursor: "pointer",
                                                                             border: "1px solid black",
-
                                                                         }}
                                                                         onClick={() => handleTeamClick(team)}
                                                                     >
@@ -406,7 +452,7 @@ export default function Team() {
                                                                     </div>
                                                                 )}
                                                             </Draggable>
-                                                        ))}
+                                                        )) : <p style={{ textAlign: "center", padding: "10px" }}>No teams available</p>}
                                                         {provided.placeholder}
                                                     </div>
                                                 )}
@@ -444,20 +490,21 @@ export default function Team() {
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {selectedTeam && selectedTeam.people ? (
-                                                                selectedTeam.people.map((person, index) => (
+                                                            {selectedTeam && selectedTeam.students && selectedTeam.students.length > 0 ? (
+                                                                selectedTeam.students.map((student, index) => (
                                                                     <tr key={index}>
-                                                                        <td>{person.name}</td>
-                                                                        <td>{person.studentID}</td>
-                                                                        <td>{person.gender}</td>
+                                                                        <td>{student.name}</td>
+                                                                        <td>{student.studentID}</td>
+                                                                        <td>{student.gender}</td>
+                                                                        
                                                                         <td>
                                                                             <select 
-                                                                                value={selectedTeam.name} 
-                                                                                onChange={(e) => handleTeamChange(person, e.target.value)}
-                                                                            >
-                                                                                <option>----------</option>
+                                                                                value={selectedTeam?.name || ""} 
+                                                                                onChange={(e) => handleTeamChange(student, e.target.value)}
+                                                                                >
+                                                                                <option value="">----------</option>
                                                                                 {initialTeams.map((team) => (
-                                                                                    <option key={team.id} value={team.name}>
+                                                                                    <option key={team.name} value={team.name}>
                                                                                         {team.name}
                                                                                     </option>
                                                                                 ))}
@@ -467,10 +514,13 @@ export default function Team() {
                                                                 ))
                                                             ) : (
                                                                 <tr>
-                                                                    <td colSpan="4">No team selected or no members available.</td>
+                                                                    <td colSpan="4" style={{ textAlign: "center", padding: "10px" }}>
+                                                                        No team selected or no members available.
+                                                                    </td>
                                                                 </tr>
                                                             )}
                                                         </tbody>
+
                                                     </table>
                                                 </div>
                                             </div>

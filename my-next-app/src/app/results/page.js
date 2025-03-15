@@ -34,7 +34,7 @@ export default function Results() {
 
         const data = await response.json();
         setTeams(data.teams || []); // Assuming the response has a "teams" array
-
+        console.log(data.teams);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -51,7 +51,7 @@ export default function Results() {
     router.push("/"); // Navigate back to the homepage
   };
   return (
-    <div>
+    <div className = "top">
       <Header />
       <div className="p-4">
         <h1 className="text-xl font-bold mb-4">Generated Teams</h1>

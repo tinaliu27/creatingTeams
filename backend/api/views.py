@@ -168,6 +168,7 @@ def generateTeams(request):
     except ValueError:
         return JsonResponse({"error": "Invalid team size"}, status=400)
 
+
 def getTeams(request):
     if request.method == "GET":
         try:
@@ -177,18 +178,24 @@ def getTeams(request):
 
             # Validate the presence of the generate_team_name parameter
             if not generate_team_name:
-                return JsonResponse({"error": "Missing 'generate_team_name' parameter"}, status=400)
-
+                return JsonResponse(
+                    {"error": "Missing 'generate_team_name' parameter"}, status=400
+                )
 
             # Query Team objects by the related TeamGeneration's 'generate_team_name'
-            teams = Team.objects.filter(team_generations__generate_team_name=generate_team_name)
+            teams = Team.objects.filter(
+                team_generations__generate_team_name=generate_team_name
+            )
 
             # Debug: Check if any teams were found
             print(f"Found teams: {teams}")  # Debugging
 
             # If no teams are found for the given generate_team_name, return a 404
             if not teams:
-                return JsonResponse({"error": "No teams found for this team generation name"}, status=404)
+                return JsonResponse(
+                    {"error": "No teams found for this team generation name"},
+                    status=404,
+                )
 
             # Prepare team data
             teams_data = [
@@ -215,6 +222,7 @@ def getTeams(request):
 
     # Return error if the method is not GET
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def saveTeamData(request):
@@ -279,7 +287,9 @@ def saveTeamData(request):
                     name=team_name,
                     color=color,
                 )
-                print(f"Created Team: {team.name} with ID: {team.id} and Color: {team.color}")
+                print(
+                    f"Created Team: {team.name} with ID: {team.id} and Color: {team.color}"
+                )
 
                 # Extract student IDs and create relationships with Student objects
                 student_objects = []
@@ -323,13 +333,16 @@ def saveTeamData(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+
 def getAllGeneratedTeamNames(request):
     try:
         # Get all TeamGeneration instances
         team_generations = TeamGeneration.objects.all()
 
         # Extract the generate_team_name from each TeamGeneration instance
-        generate_team_names = [team_generation.generate_team_name for team_generation in team_generations]
+        generate_team_names = [
+            team_generation.generate_team_name for team_generation in team_generations
+        ]
 
         # Return a successful response with the list of generate_team_names
         return JsonResponse({"generate_team_names": generate_team_names}, status=200)
@@ -338,6 +351,7 @@ def getAllGeneratedTeamNames(request):
         # Return any error that occurs during processing
         return JsonResponse({"error": str(e)}, status=400)
 
+
 def getGeneratedTeamDetails(request):
     if request.method == "GET":
         try:
@@ -345,21 +359,27 @@ def getGeneratedTeamDetails(request):
             generate_team_name = request.GET.get("generate_team_name")
 
             if not generate_team_name:
-                return JsonResponse({"error": "generate_team_name is required"}, status=400)
-            
+                return JsonResponse(
+                    {"error": "generate_team_name is required"}, status=400
+                )
+
             # Get the TeamGeneration instance based on the generate_team_name
-            team_generation = TeamGeneration.objects.get(generate_team_name=generate_team_name)
+            team_generation = TeamGeneration.objects.get(
+                generate_team_name=generate_team_name
+            )
 
             # Prepare the response data with team generation details
             team_details = {
                 "generate_team_name": team_generation.generate_team_name,
                 "diversify_gender": team_generation.diversify_gender,
                 "match_preferences": team_generation.match_preferences,
-                "students": []  # Initialize student list
+                "students": [],  # Initialize student list
             }
 
             # Retrieve all students in this team generation
-            students = Student.objects.filter(teams__team_generations=team_generation).distinct()
+            students = Student.objects.filter(
+                teams__team_generations=team_generation
+            ).distinct()
 
             # Populate student details
             for student in students:
@@ -371,7 +391,7 @@ def getGeneratedTeamDetails(request):
                     "timeSlot": student.timeSlot,
                     "enemy": student.enemy,
                     "PM": student.PM,
-                    "projectPreference": student.projectPreference
+                    "projectPreference": student.projectPreference,
                 }
                 team_details["students"].append(student_data)
 
@@ -380,5 +400,60 @@ def getGeneratedTeamDetails(request):
 
         except TeamGeneration.DoesNotExist:
             return JsonResponse({"error": "Team generation not found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+@csrf_exempt
+def moveStudent(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            student_id = data.get("studentID")
+            new_team_id = data.get("newTeamID")
+            generate_team_name = request.GET.get("generate_team_name")
+            print(student_id, new_team_id)
+            # Validate input data
+            if not student_id or not new_team_id:
+                return JsonResponse(
+                    {"error": "Missing studentID or newTeamID"}, status=400
+                )
+
+            # Fetch the student and the new team from the database
+            try:
+                student = Student.objects.get(studentID=student_id)
+            except Student.DoesNotExist:
+                return JsonResponse({"error": "Student not found"}, status=404)
+
+            # Fetch the TeamGeneration object that corresponds to the generate_team_name
+            try:
+                team_generation = TeamGeneration.objects.get(generate_team_name=generate_team_name)
+            except TeamGeneration.DoesNotExist:
+                return JsonResponse({"error": "Team generation not found"}, status=404)
+
+            # Fetch the team corresponding to the new_team_id within this TeamGeneration
+            try:
+                new_team = team_generation.teams.get(name=new_team_id)
+            except Team.DoesNotExist:
+                return JsonResponse({"error": "New team not found in the specified team generation"}, status=404)
+
+            # Find the student's current team and remove them from it
+            current_team = Team.objects.filter(students=student).first()
+            if current_team:
+                current_team.students.remove(student)
+
+            # Add the student to the new team
+            new_team.students.add(student)
+
+            return JsonResponse(
+                {"message": f"Student {student.name} moved to team {new_team.name}"},
+                status=200,
+            )
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        except Exception as e:
+            logger.error(f"Error moving student: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)

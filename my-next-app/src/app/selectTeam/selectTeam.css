@@ -2,3 +2,30 @@
     margin-top: 135px;
     padding-top: 10px; 
 }
+.teamNamesList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .teamNameDiv {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .teamButton {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .teamButton:hover {
+    background-color: #0056b3;
+  }
