@@ -36,7 +36,7 @@ const Header = () => {
                         <Link href="">Surveys</Link>
                     </li>
                     <li>
-                        <Link href="/team">Teams</Link>
+                        <Link href="/selectTeam">Teams</Link>
                     </li>
                     <li>
                         <Link href="">Evaluations</Link>
