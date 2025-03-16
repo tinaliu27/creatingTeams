@@ -17,6 +17,7 @@ export default function Team() {
 
     const [isOpen, setIsOpen] = useState(false); 
     const [selectedAttributes, setSelectedAttributes] = useState(new Set());
+    const [selectedVisualizations, setSelectedVisualizations] = useState({}); 
     const [visualizationTypes, setVisualizationTypes] = useState({});
     const [selectedTeam, setSelectedTeam] = useState(null); 
     const [initialTeams, setInitialTeams] = useState([]);
@@ -379,6 +380,13 @@ export default function Team() {
                                             ))}
                                         </tr>
                                     ))}
+                                    <div className = "showAttributesContainer">
+                                        <div className = "showAttributes">
+                                            <button 
+                                                onClick = {(e) => handleVisualizationSelect()}
+                                                >Apply Attributes</button>
+                                        </div>
+                                    </div>
                                 </tbody>
                             </table>
                         </div>
@@ -478,7 +486,12 @@ export default function Team() {
                                                             <option value="yellow">In Progress</option>
                                                             <option value="green">Ready</option>
                                                         </select>
-                                                    </div>
+                                                </div>
+                                                <div className = "teamInfoAttributeInfoGraphicsContainer">
+                                                    <div className = "teamInfoAttributeInfoGraphicsContainer">
+                                                    
+                                                    </div> 
+                                                </div> 
                                                 <div className="studentList">
                                                     <table className="studentTable">
                                                         <thead>
