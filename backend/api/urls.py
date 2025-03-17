@@ -19,7 +19,13 @@ from .views import (
     saveTeamData,
     getAllGeneratedTeamNames,
     getGeneratedTeamDetails,
-    moveStudent
+    moveStudent,
+    getAcademicHistoryGeneration,
+    getGenderCount,
+    getDemoProjectPreferenceCount,
+    getEnemyCount,
+    getPMCount, 
+    getTimeSlotAvailabilityCount,
 )
 from . import views
 
@@ -43,4 +49,10 @@ urlpatterns = [
     path("getAllGeneratedTeamNames/", getAllGeneratedTeamNames, name="getAllGeneratedTeamNames"),
     path("getGeneratedTeamDetails/", getGeneratedTeamDetails, name="getGeneratedTeamDetails"),
     path("moveStudent/", moveStudent, name="moveStudent"),
+    path("getAcademicHistoryCount", getAcademicHistoryGeneration, name="getAcademicHistoryCount"),
+    path("getGenderCount", getGenderCount, name="getGenderCount"), 
+    path("getPMCount", getPMCount, name="getPMCount"),
+    path("getTimeSlotAvailbilityCount", getTimeSlotAvailabilityCount, name="getTimeSlotAvailbilityCount"),
+    path("getDemoProjectPreferenceCount", getDemoProjectPreferenceCount, name="getDemoProjectPreferenceCount"),
+    path("getEnemyCount", getEnemyCount, name="getEnemyCount")
 ]

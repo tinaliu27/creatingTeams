@@ -111,19 +111,19 @@ def generateStudentNumber():
 
 
 def generateRandomGender():
-    genders = ["Male", "Female", "Non-binary", "Other"]
+    genders = ["Male", "Female", "Non-binary", "Other", "Prefer not to say", ""]
     gender = random.choice(genders)
     return gender
 
 
 def generateRandomAcademicHistory():
-    academicHistory = ["0-50%", "50-60%", "70-80%", "80-90%", "90-100%"]
+    academicHistory = ["0-50%", "50-60%", "70-80%", "80-90%", "90-100%", ""]
     academicHistory = random.choice(academicHistory)
     return academicHistory
 
 
 def generateTimeslotAvailability():
-    timeSlot = ["6-9 am", "9-12 pm", "12-3 pm", "3-6 pm", "6-9 pm", "9-12 am"]
+    timeSlot = ["6-9 am", "9-12 pm", "12-3 pm", "3-6 pm", "6-9 pm", "9-12 am", ""]
     timeSlot = random.choice(timeSlot)
     return timeSlot
 
@@ -427,7 +427,9 @@ def moveStudent(request):
 
             # Fetch the TeamGeneration object that corresponds to the generate_team_name
             try:
-                team_generation = TeamGeneration.objects.get(generate_team_name=generate_team_name)
+                team_generation = TeamGeneration.objects.get(
+                    generate_team_name=generate_team_name
+                )
             except TeamGeneration.DoesNotExist:
                 return JsonResponse({"error": "Team generation not found"}, status=404)
 
@@ -435,7 +437,10 @@ def moveStudent(request):
             try:
                 new_team = team_generation.teams.get(name=new_team_id)
             except Team.DoesNotExist:
-                return JsonResponse({"error": "New team not found in the specified team generation"}, status=404)
+                return JsonResponse(
+                    {"error": "New team not found in the specified team generation"},
+                    status=404,
+                )
 
             # Find the student's current team and remove them from it
             current_team = Team.objects.filter(students=student).first()
@@ -457,3 +462,319 @@ def moveStudent(request):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+def getAcademicHistoryGeneration(request):
+    academicCategories = [
+        "No Answer Provided",
+        "0-50%",
+        "50-60%",
+        "60%-70%",
+        "70-80%",
+        "80-90%",
+        "90-100%",
+    ]
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+
+        if not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        # Fetch the team by name
+        team = team_generation.teams.filter(name=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+
+        # Initialize count dictionary
+        categoryCounts = {category: 0 for category in academicCategories}
+
+        for student in team.students.all():
+            academicHistory = student.academicHistory.strip()
+
+            if academicHistory == "" or academicHistory.lower() == "no answer provided":
+                categoryCounts["No Answer Provided"] += 1
+            elif academicHistory in categoryCounts:
+                categoryCounts[academicHistory] += 1
+            else:
+                categoryCounts["No Answer Provided"] += 1  # Catch unexpected values
+
+        # Return response
+        return JsonResponse({team.name: categoryCounts})
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+
+## get gender count
+def getGenderCount(request):
+    genderCategories = [
+        "No Answer Provided",
+        "Male",
+        "Female",
+        "Non-binary",
+        "Other",
+        "Prefer not to say",
+    ]
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"})
+        elif not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=405)
+
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+        ## get the team
+        team = team_generation.teams.filter(name=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+        categoryCounts = {category: 0 for category in genderCategories}
+
+        for student in team.students.all():
+            gender = student.gender.strip()
+
+            if gender == "" or gender.lower() == "no answer provided":
+                categoryCounts["No Answer Provided"] += 1
+            elif gender in categoryCounts:
+                categoryCounts[gender] += 1
+            else:
+                categoryCounts["No Answer Provided"] += 1  # Catch unexpected values
+
+        return JsonResponse({team.name: categoryCounts})
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+
+def getTimeSlotAvailabilityCount(request):
+    timeSlotCategory = [
+        "No Answer Provided",
+        "6-9 am",
+        "9-12 pm",
+        "12-3 pm",
+        "3-6 pm",
+        "6-9 pm",
+        "9-12 am",
+    ]
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"})
+        elif not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=405)
+
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+        ## get the team
+        team = team_generation.teams.filter(name=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+        categoryCounts = {category: 0 for category in timeSlotCategory}
+
+        for student in team.students.all():
+            timeSlot = student.timeSlot.strip()
+
+            if timeSlot == "":
+                categoryCounts["No Answer Provided"] += 1
+            elif timeSlot in categoryCounts:
+                categoryCounts[timeSlot] += 1
+            else:
+                categoryCounts["No Answer Provided"] += 1  # Catch unexpected values
+
+        return JsonResponse({team.name: categoryCounts})
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+
+def getEnemyCount(request):
+    studentNameCategory = [
+        "No Answer Provided",
+        "Anna Solomon",
+        "Brad Connor",
+        "Charlie Bassen",
+        "David Trump",
+        "Easton Johns",
+        "Fred Lim",
+        "George Kim",
+        "Hunter Olson",
+        "Ivy Lewis",
+        "Jason Derulo",
+        "Kelsey Kann",
+        "Leo Lam",
+        "Mona Underwood",
+        "Nina Vaughn",
+        "Oscar Smith",
+        "Paul Newman",
+        "Quincy Adams",
+        "Rachel Berry",
+        "Sam Smith",
+        "Trevor Lim",
+        "Ursula King",
+        "Victor King",
+        "Wendy Williams",
+        "Xavier Chang",
+        "Yara Smith",
+        "Zahra Irwin",
+    ]
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"})
+        elif not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=405)
+
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+        ## get the team
+        team = team_generation.teams.filter(name=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+        categoryCounts = {category: 0 for category in studentNameCategory}
+
+        for student in team.students.all():
+            enemy = student.enemy.strip()
+
+            if enemy == "":
+                categoryCounts["No Answer Provided"] += 1
+            elif enemy in categoryCounts:
+                categoryCounts[enemy] += 1
+            else:
+                categoryCounts["No Answer Provided"] += 1  # Catch unexpected values
+
+        return JsonResponse({team.name: categoryCounts})
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+
+def getPMCount(request):
+    experienceCategory = [
+        "No Answer Provided",
+        "no experience",
+        "minimal experience in small projects",
+        "some experience in multiple projects",
+        "lots of experience",
+    ]
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"})
+        elif not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=405)
+
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+        ## get the team
+        team = team_generation.teams.filter(name=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+        categoryCounts = {category: 0 for category in experienceCategory}
+
+        for student in team.students.all():
+            PM = student.PM.strip()
+
+            if PM == "":
+                categoryCounts["No Answer Provided"] += 1
+            elif PM in categoryCounts:
+                categoryCounts[PM] += 1
+            else:
+                categoryCounts["No Answer Provided"] += 1  # Catch unexpected values
+
+        return JsonResponse({team.name: categoryCounts})
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+
+def getDemoProjectPreferenceCount(request):
+    projectPreferenceCateogry = [
+        "No Answer Provided",
+        "Project 1",
+        "Project 2",
+    ]
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"})
+        elif not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=405)
+
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+        ## get the team
+        team = team_generation.teams.filter(name=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+        categoryCounts = {category: 0 for category in projectPreferenceCateogry}
+
+        for student in team.students.all():
+            projectPreference = student.projectPreference.strip()
+
+            if projectPreference == "":
+                categoryCounts["No Answer Provided"] += 1
+            elif projectPreference in categoryCounts:
+                categoryCounts[projectPreference] += 1
+            else:
+                categoryCounts["No Answer Provided"] += 1  # Catch unexpected values
+
+        return JsonResponse({team.name: categoryCounts})
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
