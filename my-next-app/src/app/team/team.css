@@ -1,5 +1,6 @@
 .teamContents {
     background-color: #f8f9fa;
+    color: black; 
 }
 
 .pageContents {
@@ -192,3 +193,45 @@
     display: none; /* This div should not interfere with the table */
   }
   
+  .teamInfoAttributeInfoGraphicsContainer{
+    display: flex; 
+    width: 100%; 
+    flex-direction: row;
+  }
+  .teamInfoAttributeInfoGraphicsContainer .projectPreference {
+    display: flex;
+    width: 100%; 
+    flex-direction: row;
+  }
+  .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+    display: flex;        
+    overflow-x: auto;     
+    white-space: nowrap; 
+    gap: 20px;           
+    padding: 10px; 
+    width: 90%; 
+    border: 1px solid rgb(219, 219, 219); 
+    background-color: #f1f1f1;
+    margin-bottom: 20px; 
+  }
+  .scrollable-x ul {
+    list-style: none;   
+    margin: 0;           
+    padding: 0;          
+    min-width: 250px;     
+    border-radius: 5px;   
+    padding: 10px;       
+}
+  .scrollable-x::-webkit-scrollbar {
+    height: 8px;           /* Optional: scrollbar height */
+}
+
+.scrollable-x::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Optional: scrollbar color */
+    border-radius: 4px;
+}
+
+.scrollable-x::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Optional: scrollbar track color */
+}
+

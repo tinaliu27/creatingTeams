@@ -22,6 +22,7 @@ class Student(models.Model):
 class Team(models.Model):
     name = models.CharField(max_length=100, default="team")
     color = models.CharField(max_length=50, default="green")
+    project = models.CharField(max_length=50, default="project_1")
     students = models.ManyToManyField(Student, related_name="teams")
 
     def __str__(self):
