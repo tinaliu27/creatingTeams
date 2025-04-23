@@ -1,0 +1,242 @@
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: #ffffff;
+    margin: 0;
+    color: #222;
+    width: 100%; 
+    height: 100%;
+    overflow-x: hidden;
+  }
+header {
+    background: #d7d7ef;
+    padding: 2rem 0 .5rem 0;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100%;
+  }
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-bottom: 1.2rem;
+    margin-top: -1.2rem;
+  }
+  .nav a {
+    text-decoration: none;
+    color: #1a73e8;
+    font-weight: 500;
+    font-size: 1.08rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav a:hover {
+    background: #e3f0fd;
+    color: #174ea6;
+  }
+
+   .tab.active {
+      background: #1a73e8;
+      color: #fff;
+    }
+    .tabContent {
+      display: none;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 0 0 8px 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .tabContent.active {
+      display: block;
+    }
+ .tab.active {
+      background: #1a73e8;
+      color: #fff;
+    }
+    .tabContent {
+      display: none;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 0 0 8px 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .tabContent.active {
+      display: block;
+    }
+  
+  .mainContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 60px;
+    width: 100%; 
+   
+  }
+  .main {
+    padding: 10px; 
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%; 
+    margin-left: 10px; 
+    margin-right: 10px; 
+  }
+  .techStackContainer {
+    width: 100%; 
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+    background-color: #ececec; /* <-- Add this line */
+    
+    }
+  .techStack {
+    padding: 10px 120px;
+    display: flex;
+    flex-direction: column;
+  }
+  .techStack .tabs {
+    display: flex;
+    align-items: left;
+    width: 100%; 
+  }
+  .techStack .tabs button {
+    font-size: 25px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+  }
+  .techStack .tabContent {
+    display: flex; 
+    border: 1px solid rgb(112, 112, 112); 
+    border-radius: 5px;
+  }
+  .demonstrationContainer {
+    display: flex; 
+    width: 100%; 
+    flex-direction: column;
+  }
+  .demonstration {
+    padding: 20px 120px; 
+    display: flex; 
+    flex-direction: column;
+    padding-top: 5px;
+  }
+  .demonstration p {
+    font-size: 30px;
+  }
+  .demonstration h2{
+    font-size: 50px;
+    padding: 0;
+    margin: 0; 
+  }
+
+  .demonstration .dropdown-btn {
+    background-color: white; 
+    color: #1a73e8;
+    border: 1px solid #1a73e8;
+    font-size: 30px;
+    padding: 10px;
+    text-align: left;
+    justify-content: space-between;
+  }
+  .demonstration .dropdown-content {
+    display: flex; 
+    border: 1px solid #1a73e8;
+    padding: 20px; 
+  }
+  .demonstration .dropdown-content h2 {
+    font-size: 40px;
+  }
+  .demonstration .dropdown-content h4{
+    font-size: 25px;
+  }
+  .demonstration .dropdown-content i{
+    font-size: 30px;
+    text-decoration: underline;
+  }
+  .demonstration .dropdown-content .figures {
+    display: flex; 
+    width: 100%; 
+    flex-direction:column; 
+    overflow: hidden;
+  }
+  .demonstration .dropdown-content .low-fidelity {
+    display: flex; 
+    width: 100%; 
+    flex-direction:row; 
+    overflow: hidden;
+    align-items: center;
+  }
+  .low-fidelity img {
+    max-width: 50%
+  }
+  .high-fidelity {
+    display: flex; 
+    width: 100%; 
+    flex-direction:row; 
+    overflow: hidden;
+    align-items: center;
+  }
+  .high-fidelity img{
+    max-width: 50%;
+  }
+
+  .UIUXContainer {
+    display: flex; 
+    width: 100%; 
+    flex-direction: column;
+  }
+  .UIUX {
+    padding: 20px 120px; 
+    display: flex; 
+    flex-direction: column;
+    padding-top: 5px;
+  }
+  .UIUX h1{
+    font-size: 50px;
+    padding: 0;
+    margin: 0; 
+  }
+  .UIUX ol{
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
+  }
+  .UIUX li {
+    font-size: 20px;
+    padding: 0;
+    margin: 0; 
+  }
+  .UIUX .beforeAfter{
+    display: flex; 
+    width: 100%; 
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .UIUX .beforeAfter .item {
+    flex-direction:column;
+    display: flex; 
+  }
+  .UIUX h3{
+    font-size: 20px;
+  }
+  .strengthWeakness {
+    width: 100%; 
+    display: flex; 
+    flex-direction: row;
+    border: 1px solid black; 
+  }
+  .strengthWeakness .item {
+    display: flex; 
+    flex-direction: column;
+    width: 50%; 
+  }
