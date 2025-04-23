@@ -49,3 +49,31 @@
 .headerSecond li:hover{
     color: #0f4577; 
 }
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .tooltip::before {
+    content: attr(data-title); /* Use the data-title attribute for the tooltip text */
+    position: absolute;
+    top: -30px; /* Position the tooltip above the link */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+  }
+  
+  .tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+  }

@@ -27,6 +27,7 @@ from .views import (
     getPMCount, 
     getTimeSlotAvailabilityCount,
     getDemoProjectPreference,
+    getTeamAverage,
 )
 
 from . import views
@@ -58,4 +59,5 @@ urlpatterns = [
     path("getDemoProjectPreferenceCount", getDemoProjectPreferenceCount, name="getDemoProjectPreferenceCount"),
     path("getEnemyCount", getEnemyCount, name="getEnemyCount"),
     path("getPreferencesTeams", getDemoProjectPreference, name="getDemoProjectPrefernece"),
+    path("getTeamAverage", getTeamAverage, name="getTeamAverage"),
 ]

@@ -14,9 +14,7 @@ import RadarChartComponent from "../../components/RadarChartAcademicHistory";
 import RadarChartGender from "@/components/RadarChartGender";
 import RadarChartPM from "@/components/RadarChartPM";
 import HeatMap from "@/components/Heatmap";
-import BarChart from "../../components/BarChart";
-import RadarChart from "../../components/RadarChartAcademicHistory";
-import Heatmap from "../../components/Heatmap";
+import BarChartAcademicHistory from "@/components/BarChartAcademicHistory";
 export default function Team() {
     const searchParams = useSearchParams(); // Get query parameters
 
@@ -47,6 +45,8 @@ export default function Team() {
     const [enemyTallyCount, setEnemyTallyCount] = useState({}); 
 
     const handleApplyAttributes = () => {
+       
+    
         setShowVisualizations(true); // Enables visualization display only after button click
     };
     
@@ -323,6 +323,8 @@ export default function Team() {
             newSet.has(attribute) ? newSet.delete(attribute) : newSet.add(attribute);
             return newSet;
         });
+
+        setShowVisualizations(false); 
     };
 
     const handleVisualizationSelect = (attribute, option) => {
@@ -693,6 +695,7 @@ export default function Team() {
                                                                                     {Object.values(visualizationTypes).includes("Comparison Bar Graph") && (
                                                                                         <ul>
                                                                                             <div className="6789">
+                                                                                            <BarChartAcademicHistory generateTeamName={generateTeamName} teamName={selectedTeam.name} />
                                                                                             </div>
                                                                                         </ul>
                                                                                     )}

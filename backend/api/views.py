@@ -124,8 +124,10 @@ def generateRandomAcademicHistory():
 
 def generateTimeslotAvailability():
     timeSlot = ["6-9 am", "9-12 pm", "12-3 pm", "3-6 pm", "6-9 pm", "9-12 am", ""]
-    timeSlot = random.choice(timeSlot)
-    return timeSlot
+    if random.randint(1, 10) < 2:
+        return[""]
+    selectedTimeSlots = random.sample(timeSlot[:-1], k=random.randint(1, len(timeSlot) - 1))
+    return ", ".join(selectedTimeSlots)
 
 
 def generateEnemies():
@@ -859,3 +861,80 @@ def getDemoProjectPreference(request):
 
     except TeamGeneration.DoesNotExist:
         return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+def getTeamAverage(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        teams_data = []
+        total_class_academic_history = 0
+        total_class_students = 0
+
+        for team in team_generation.teams.all():
+            students = team.students.all()
+            total_team_students = 0
+            total_team_academic_history = 0
+
+            for student in students:
+                academic_history = student.academicHistory.strip()
+                if academic_history and academic_history != "No Answer Provided" and academic_history != "":
+                    try:
+                        # Remove the '%' symbol and split the range
+                        lower_bound, upper_bound = map(
+                            int, academic_history.replace("%", "").split("-")
+                        )
+                        averageOfSplit = (lower_bound + upper_bound) / 2
+                        total_team_academic_history += averageOfSplit
+                        total_team_students += 1  # Only count students with valid academic history
+                    except ValueError:
+                        # Skip if the academic history is not in the expected format
+                        continue
+            # Calculate the team's average academic history
+            average_team_academic_history = (
+                round(total_team_academic_history / total_team_students, 2)
+                if total_team_students > 0
+                else 0
+            )
+
+            # Append team data
+            teams_data.append(
+                {
+                    "team_name": team.name,
+                    "average_academic_history": average_team_academic_history,
+                }
+            )
+
+            # Add to class totals
+            total_class_academic_history += total_team_academic_history
+            total_class_students += total_team_students
+
+        # Calculate the class average academic history
+        class_average_academic_history = (
+            total_class_academic_history / total_class_students
+            if total_class_students > 0
+            else 0
+        )
+
+        # Return both team averages and the class average
+        return JsonResponse(
+            {
+                "teams": teams_data,
+                "class_average_academic_history": class_average_academic_history,
+            },
+            safe=False,
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+    
