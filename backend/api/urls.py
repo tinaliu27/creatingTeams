@@ -19,8 +19,24 @@ from .views import (
     saveTeamData,
     getAllGeneratedTeamNames,
     getGeneratedTeamDetails,
-    moveStudent
+    moveStudent,
+    getAcademicHistoryGeneration,
+    getGenderCount,
+    getDemoProjectPreferenceCount,
+    getEnemyCount,
+    getPMCount, 
+    getTimeSlotAvailabilityCount,
+    getDemoProjectPreference,
+    getTeamAverage,
+    getGenderAverageForTeam,
+    getGenderAverageForClass,
+    getPMAverageForTeam,
+    getPMAverageForClass,
+    getEnemySatisfactionPercentage,
+    getProjectPreferenceSatisfactionPercentage,
+    updateTeamColor,
 )
+
 from . import views
 
 
@@ -43,4 +59,19 @@ urlpatterns = [
     path("getAllGeneratedTeamNames/", getAllGeneratedTeamNames, name="getAllGeneratedTeamNames"),
     path("getGeneratedTeamDetails/", getGeneratedTeamDetails, name="getGeneratedTeamDetails"),
     path("moveStudent/", moveStudent, name="moveStudent"),
+    path("getAcademicHistoryCount", getAcademicHistoryGeneration, name="getAcademicHistoryCount"),
+    path("getGenderCount", getGenderCount, name="getGenderCount"), 
+    path("getPMCount", getPMCount, name="getPMCount"),
+    path("getTimeSlotAvailbilityCount", getTimeSlotAvailabilityCount, name="getTimeSlotAvailbilityCount"),
+    path("getDemoProjectPreferenceCount", getDemoProjectPreferenceCount, name="getDemoProjectPreferenceCount"),
+    path("getEnemyCount", getEnemyCount, name="getEnemyCount"),
+    path("getPreferencesTeams", getDemoProjectPreference, name="getDemoProjectPrefernece"),
+    path("getTeamAverage", getTeamAverage, name="getTeamAverage"),
+    path("getGenderAverageForTeam", getGenderAverageForTeam, name="getGenderAverageForTeam"),
+    path("getGenderAverageForClass", getGenderAverageForClass, name="getGenderAverageForClass"),
+    path("getPMAverageForTeam", getPMAverageForTeam, name="getPMAverageForTeam"),
+    path("getPMAverageForClass", getPMAverageForClass, name="getPMAverageForClass"),
+    path("getEnemySatisfactionPercentage", getEnemySatisfactionPercentage, name="getEnemySatisfactionPercentage"),
+    path("getProjectPreferenceSatisfactionPercentage", getProjectPreferenceSatisfactionPercentage, name="getProjectPreferenceSatisfactionPercentage"),
+    path("updateTeamColor", updateTeamColor, name="updateTeamColor"),
 ]

@@ -21,7 +21,8 @@ class Student(models.Model):
 # Create a model to represent a team
 class Team(models.Model):
     name = models.CharField(max_length=100, default="team")
-    color = models.CharField(max_length=50, default="green")
+    color = models.CharField(max_length=50, default="#FF9180")
+    project = models.CharField(max_length=50, default="project_1")
     students = models.ManyToManyField(Student, related_name="teams")
 
     def __str__(self):
