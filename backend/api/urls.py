@@ -28,6 +28,13 @@ from .views import (
     getTimeSlotAvailabilityCount,
     getDemoProjectPreference,
     getTeamAverage,
+    getGenderAverageForTeam,
+    getGenderAverageForClass,
+    getPMAverageForTeam,
+    getPMAverageForClass,
+    getEnemySatisfactionPercentage,
+    getProjectPreferenceSatisfactionPercentage,
+    updateTeamColor,
 )
 
 from . import views
@@ -60,4 +67,11 @@ urlpatterns = [
     path("getEnemyCount", getEnemyCount, name="getEnemyCount"),
     path("getPreferencesTeams", getDemoProjectPreference, name="getDemoProjectPrefernece"),
     path("getTeamAverage", getTeamAverage, name="getTeamAverage"),
+    path("getGenderAverageForTeam", getGenderAverageForTeam, name="getGenderAverageForTeam"),
+    path("getGenderAverageForClass", getGenderAverageForClass, name="getGenderAverageForClass"),
+    path("getPMAverageForTeam", getPMAverageForTeam, name="getPMAverageForTeam"),
+    path("getPMAverageForClass", getPMAverageForClass, name="getPMAverageForClass"),
+    path("getEnemySatisfactionPercentage", getEnemySatisfactionPercentage, name="getEnemySatisfactionPercentage"),
+    path("getProjectPreferenceSatisfactionPercentage", getProjectPreferenceSatisfactionPercentage, name="getProjectPreferenceSatisfactionPercentage"),
+    path("updateTeamColor", updateTeamColor, name="updateTeamColor"),
 ]

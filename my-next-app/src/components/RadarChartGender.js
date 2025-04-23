@@ -39,7 +39,7 @@ const RadarChartGender = ({ generateTeamName, teamName }) => {
     }, [generateTeamName, teamName]);
 
     return (
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={200} margin="20px">
             <RadarChart cx="50%" cy="50%" outerRadius="50%" data={chartData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="category" />

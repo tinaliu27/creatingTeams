@@ -360,7 +360,7 @@ def getAllGeneratedTeamNames(request):
 
 
 def getGeneratedTeamDetails(request):
-    if request.method == "GET":
+    if request.method == "GET": 
         try:
             # Retrieve the generate_team_name from the query parameters
             generate_team_name = request.GET.get("generate_team_name")
@@ -938,3 +938,389 @@ def getTeamAverage(request):
     except TeamGeneration.DoesNotExist:
         return JsonResponse({"error": "Team Generation not Found"}, status=404)
     
+def getGenderAverageForTeam(request):
+    # Define the metric for each gender
+    genderMetrics = {
+        "Male": 20,
+        "Female": 40,
+        "Non-binary": 80,
+        "Other": 80,
+        "Prefer not to say": 100,
+        "No Answer Provided": 1,
+        "": 1,  # Treat empty strings as "No Answer Provided"
+    }
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+        if not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        # Fetch the specific team
+        team = team_generation.teams.filter(name__icontains=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+
+        # Initialize total metrics and student count
+        totalMetric = 0
+        total_students = 0
+
+        # Calculate the total metric for the team
+        for student in team.students.all():
+            gender = student.gender.strip()
+            metric = genderMetrics.get(gender, 1)  # Default to 1% if gender is unexpected
+            totalMetric += metric
+            total_students += 1
+
+        # Calculate the average metric for the team
+        averageMetric = round(totalMetric / total_students, 2) if total_students > 0 else 0
+
+        return JsonResponse(
+            {"team_name": team.name, "average_metric": averageMetric}, status=200
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+
+
+def getGenderAverageForClass(request):
+    # Define the metric for each gender
+    genderMetrics = {
+        "Male": 20,
+        "Female": 40,
+        "Non-binary": 80,
+        "Other": 80,
+        "Prefer not to say": 100,
+        "No Answer Provided": 1,
+        "": 1,  # Treat empty strings as "No Answer Provided"
+    }
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        # Initialize total metrics and student count
+        totalMetric = 0
+        total_students = 0
+
+        # Calculate the total metric for the entire class
+        for team in team_generation.teams.all():
+            for student in team.students.all():
+                gender = student.gender.strip()
+                metric = genderMetrics.get(gender, 1)  # Default to 1% if gender is unexpected
+                totalMetric += metric
+                total_students += 1
+
+        # Calculate the average metric for the class
+        averageMetric = round(totalMetric / total_students, 2) if total_students > 0 else 0
+
+        return JsonResponse(
+            {"class_name": generate_team_name, "average_metric": averageMetric},
+            status=200,
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+    
+
+def getPMAverageForTeam(request):
+    # Define the metric for each PM experience level
+    pmMetrics = {
+        "": 0,
+        "no experience": 25,
+        "minimal experience in small projects": 50,
+        "some experience in multiple projects": 75,
+        "lots of experience": 100,
+    }
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+        if not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        # Fetch the specific team
+        team = team_generation.teams.filter(name__icontains=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+
+        # Initialize total metrics and student count
+        totalMetric = 0
+        total_students = 0
+
+        # Calculate the total metric for the team
+        for student in team.students.all():
+            pm_experience = student.PM.strip()
+            metric = pmMetrics.get(pm_experience, 0)  # Default to 0% if PM experience is unexpected
+            totalMetric += metric
+            total_students += 1
+
+        # Calculate the average metric for the team
+        averageMetric = round(totalMetric / total_students, 2) if total_students > 0 else 0
+
+        return JsonResponse(
+            {"team_name": team.name, "average_pm_metric": averageMetric}, status=200
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+    
+def getPMAverageForClass(request):
+    # Define the metric for each PM experience level
+    pmMetrics = {
+        "": 0,
+        "no experience": 25,
+        "minimal experience in small projects": 50,
+        "some experience in multiple projects": 75,
+        "lots of experience": 100,
+    }
+
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        # Initialize total metrics and student count
+        totalMetric = 0
+        total_students = 0
+
+        # Calculate the total metric for the entire class
+        for team in team_generation.teams.all():
+            for student in team.students.all():
+                pm_experience = student.PM.strip()
+                metric = pmMetrics.get(pm_experience, 0)  # Default to 0% if PM experience is unexpected
+                totalMetric += metric
+                total_students += 1
+
+        # Calculate the average metric for the class
+        averageMetric = round(totalMetric / total_students, 2) if total_students > 0 else 0
+
+        return JsonResponse(
+            {"class_name": generate_team_name, "average_pm_metric": averageMetric},
+            status=200,
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+    
+def getEnemySatisfactionPercentage(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+        if not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=400)
+
+        # Fetch the team generation instance
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        # Fetch the specific team
+        team = team_generation.teams.filter(name__icontains=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+
+        # Initialize variables for satisfaction calculation
+        total_students = 0
+        satisfied_students = 0
+
+        # Check each student in the team
+        for student in team.students.all():
+            total_students += 1
+            enemy_name = student.enemy.strip()
+
+            # Check if the enemy is on the same team
+            if enemy_name and team.students.filter(name=enemy_name).exists():
+                # Enemy is on the same team, satisfaction is 0%
+                continue
+            else:
+                # No enemy on the same team, satisfaction is 100%
+                satisfied_students += 1
+
+        # Calculate the satisfaction percentage
+        satisfaction_percentage = (
+            round((satisfied_students / total_students) * 100, 2)
+            if total_students > 0
+            else 0
+        )
+
+        return JsonResponse(
+            {
+                "team_name": team.name,
+                "enemy_satisfaction_percentage": satisfaction_percentage,
+            },
+            status=200,
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+def getProjectPreferenceSatisfactionPercentage(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        generate_team_name = request.GET.get("generate_team_name")
+        team_name = request.GET.get("teamName")
+
+        if not generate_team_name:
+            return JsonResponse({"error": "generate_team_name is required"}, status=400)
+        if not team_name:
+            return JsonResponse({"error": "teamName is required"}, status=400)
+
+        team_generation = TeamGeneration.objects.prefetch_related(
+            "teams__students"
+        ).get(generate_team_name=generate_team_name)
+
+        team = team_generation.teams.filter(name__icontains=team_name).first()
+        if not team:
+            return JsonResponse(
+                {"error": "Team not found in the specified generation"}, status=404
+            )
+
+        total_students = 0
+        satisfied_students = 0
+        assigned_project = "Project 1"  # Manually selecgted project 1 
+
+        for student in team.students.all():
+            total_students += 1
+            student_preference = student.projectPreference.strip()
+
+            if student_preference == assigned_project:
+                satisfied_students += 1
+
+        satisfaction_percentage = (
+            round((satisfied_students / total_students) * 100, 2)
+            if total_students > 0
+            else 0
+        )
+
+        return JsonResponse(
+            {
+                "team_name": team.name,
+                "assigned_project": assigned_project,
+                "project_preference_satisfaction_percentage": satisfaction_percentage,
+            },
+            status=200,
+        )
+
+    except TeamGeneration.DoesNotExist:
+        return JsonResponse({"error": "Team Generation not Found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@csrf_exempt
+def updateTeamColor(request):
+    if request.method == "POST":
+        try:
+            # Parse the request body into a JSON object
+            data = json.loads(request.body)
+            logger.info(f"Received data: {data}")  # Log the received data
+
+            # Extract the relevant fields from the data
+            team_name = data.get("team_name")
+            new_color = data.get("color")
+            generate_team_name = request.GET.get("generate_team_name")
+            print(team_name, new_color, generate_team_name)
+
+            # Validate the input data
+            if not team_name or not new_color:
+                return JsonResponse({"error": "Missing team_name or color"}, status=400)
+
+            # Fetch the team generation instance
+            try:
+                team_generation = TeamGeneration.objects.prefetch_related("teams").get(generate_team_name=generate_team_name)
+                logger.info(f"Found team generation: {team_generation}")
+            except TeamGeneration.DoesNotExist:
+                logger.error("Team generation not found")
+                return JsonResponse({"error": "Team generation not found"}, status=404)
+
+            # Fetch the specific team within the team generation
+            try:
+                team = team_generation.teams.get(name=team_name)
+                logger.info(f"Found team: {team}")
+            except Team.DoesNotExist:
+                logger.error("Team not found in the specified team generation")
+                return JsonResponse({"error": "Team not found in the specified team generation"}, status=404)
+
+        
+            # Update the team's color
+            team.color = new_color
+            team.save()
+            team.refresh_from_db()  # Refresh the team instance from the database
+            logger.info(f"Updated team color to: {new_color}")
+
+            # Return a success response
+            return JsonResponse(
+                {
+                    "message": "Team color updated successfully",
+                    "team_name": team.name,
+                    "new_color": team.color,
+                    "colorinput": new_color,
+                },
+                status=200,
+            )
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON data")
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        logger.error("Invalid request method")
+        return JsonResponse({"error": "Invalid request method"}, status=405)

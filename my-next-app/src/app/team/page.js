@@ -15,6 +15,8 @@ import RadarChartGender from "@/components/RadarChartGender";
 import RadarChartPM from "@/components/RadarChartPM";
 import HeatMap from "@/components/Heatmap";
 import BarChartAcademicHistory from "@/components/BarChartAcademicHistory";
+import BarChartGender from "@/components/BarChartGender";
+import BarChartPM from "@/components/BarChartPM";
 export default function Team() {
     const searchParams = useSearchParams(); // Get query parameters
 
@@ -28,6 +30,7 @@ export default function Team() {
     const [error, setError] = useState(null); 
     const [loading, setLoading] = useState([]); 
     const generateTeamName = searchParams.get("generate_team_name"); // Get the team name from the URL
+    const [isStudentListOpen, setIsStudentListOpen] = useState(false);
     
     // selecting graphs 
     const [visualizationTypes, setVisualizationTypes] = useState({});
@@ -44,8 +47,18 @@ export default function Team() {
     const [projectPreferenceTallyCount, setProjectPreferenceTallyCount] = useState({}); 
     const [enemyTallyCount, setEnemyTallyCount] = useState({}); 
 
+    // satisfaction percentage
+    const [enemySatisfactionPercentage, setEnemySatisfactionPercentage] = useState(null);
+    const [PMSatisficationPercentage, setPMSatisficationPercentage] = useState(null);
+
     const handleApplyAttributes = () => {
-       
+        const unselectedAttributes = [...selectedAttributes].filter(
+            (attribute) => !visualizationTypes[attribute]
+        );
+    
+        if (unselectedAttributes.length > 0) {
+            return; // Prevent showing visualizations if any attribute is missing a selection
+        }
     
         setShowVisualizations(true); // Enables visualization display only after button click
     };
@@ -75,14 +88,14 @@ export default function Team() {
                 setTeams(data.teams.map(team => ({
                     name: team.title,  // Ensure name matches API's "title"
                     students: team.students,  // Keep student details if needed
-                    color: "#FF0000",  // Default color (can be dynamic)
+                    color: team.color || '#FF9180',  // Default color (can be dynamic)
                     project: "Project 1",
                 })));
                
                 setInitialTeams(data.teams.map(team => ({
                     name: team.title,  // Ensure name matches API's "title"
                     students: team.students,  // Keep student details if needed
-                    color: "#FF0000"  // Default color (can be dynamic)
+                    color: team.color  // Default color (can be dynamic)
                 })));
                 
             } catch (err) {
@@ -195,7 +208,7 @@ export default function Team() {
             fetchAcademicHistoryTally(selectedTeam.name);
         }
     }, [selectedTeam]);
-
+ 
     // get tally count for gender 
     const fetchPMTally = async () => {
         try {
@@ -265,25 +278,24 @@ export default function Team() {
     };
 
     const teamSettings = [
-        {id: 1, text: 'Total Team Size', textValue: students.length || 0},
-        {id: 2, text: 'Max Team Size', textValue: maxTeamSize},
-        {id: 3, text: 'Min Team Size', textValue: Math.min(...teams.map(team => team.students.length))},
-        {id: 4, text: 'Project Set'},
-        {id: 5, text: 'List Options'},
-        {id: 6, text: 'Behaviour Option'},
-        {id: 7, text: 'Overall Satisfaction'}
+        {id: 1, text: 'Total Team Size: ', textValue: students.length || 0},
+        {id: 2, text: 'Max Team Size: ', textValue: maxTeamSize},
+        {id: 3, text: 'Min Team Size: ', textValue: Math.min(...teams.map(team => team.students.length))},
+        {id: 4, text: 'Project Set: Project 1'},
+        {id: 5, text: 'List Options: '},
+        {id: 6, text: 'Behaviour Option: '},
+        {
+            id: 7,
+            text: 'Overall Satisfaction: ',
+            textValue: selectedAttributes.has('projectPreference') && selectedAttributes.has('enemies')
+                ? `Project Preference: ${PMSatisficationPercentage !== null ? `${PMSatisficationPercentage}%` : ' '}, Enemy Satisfaction ${enemySatisfactionPercentage !== null ? `${enemySatisfactionPercentage}%` : ' '}`
+                : selectedAttributes.has('projectPreference')
+                ? `Project Preference: ${PMSatisficationPercentage !== null ? `${PMSatisficationPercentage}%` : ' '}`
+                : selectedAttributes.has('enemies')
+                ? `Enemy Satisfaction: ${enemySatisfactionPercentage !== null ? `${enemySatisfactionPercentage}%` : ' '}`
+                : 'No Satisfaction Metrics Selected',
+        },
     ];
-
-    const data = [
-        "Apple",
-        "Banana",
-        "Cherry",
-        "Date",
-        "Elderberry",
-        "Fig",
-        "Grape",
-        "Honeydew",
-      ];
 
     const visualizationOptions = {
         academicHistory: ['Tally View', 'Pie Chart', 'Radar Graph', 'Comparison Bar Graph'],
@@ -328,12 +340,13 @@ export default function Team() {
     };
 
     const handleVisualizationSelect = (attribute, option) => {
-        if (showVisualizations) {  
-            setVisualizationTypes((prev) => ({
-                ...prev,
-                [attribute]: option,
-            }));
-        }
+        setVisualizationTypes((prev) => ({
+            ...prev,
+            [attribute]: option,
+        }));
+    
+        // Ensure visualizations are not shown until the "Apply Attributes" button is clicked
+        setShowVisualizations(false);
     };
 
 
@@ -351,23 +364,42 @@ export default function Team() {
         setSelectedTeam(team);
     };
       
-    const changeTeamColor = (color) => {
+    const changeTeamColor = async (color) => {
         if (selectedTeam) {
-            const updatedTeams = teams.map(team =>
-                team.name === selectedTeam.name
-                    ? { ...team, color }
-                    : team
-            );
-            setTeams(updatedTeams);
-            setSelectedColor(color); // Update the selected color state
+            try {
+                // Send the selected color to the backend
+                const response = await fetch(`http://127.0.0.1:8000/api/updateTeamColor?generate_team_name=${generateTeamName}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        generate_team_name: generateTeamName, // Include generate_team_name
+                        team_name: selectedTeam.name,        // Include team_name
+                        color: color,                        // Pass the selected color
+                    }),
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Failed to update team color");
+                }
+    
+                const data = await response.json();
+                console.log("Team color updated:", data);
+    
+                // Update the local state to reflect the change
+                const updatedTeams = teams.map((team) =>
+                    team.name === selectedTeam.name ? { ...team, color: color } : team
+                );
+                setTeams(updatedTeams);
+                setSelectedColor(color); // Update the selected color state
+            } catch (error) {
+                console.error("Error updating team color:", error);
+            }
         }
-    }
+    };
    
     
-    // search feature 
-    const filteredData = data.filter(item => 
-        item.toLowerCase().includes(search.toLowerCase())
-      );
     const handleTeamChange = async (person, newTeamName) => {
         try {
             // Make the API call to move the student to the new team
@@ -409,25 +441,39 @@ export default function Team() {
             console.error('Error while making API call:', error);
         }
     };
-    
-    const fetchPMCount = async () => {
-        const attribute = "ProjectManagement"
-        if (visualizationTypes[attribute] !== "Tally View") {
-            return; 
-        }
+
+    const fetchEnemySatisfactionPercentage = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/getPMCount?generate_team_name=${generateTeamName}&teamName=Team+1`);
+            const response = await fetch(`http://127.0.0.1:8000/api/getEnemySatisfactionPercentage?generate_team_name=${generateTeamName}&teamName=${selectedTeam.name}`);
             if (!response.ok) {
-                throw new Error("Failed to fetch data");
+                throw new Error("Failed to fetch enemy satisfaction percentage");
             }
             const data = await response.json();
-            setSelectedPMData(data);
+            setEnemySatisfactionPercentage(data.enemy_satisfaction_percentage);
         } catch (error) {
-            console.error("Error fetching PM count:", error);
+            console.error("Error fetching enemy satisfaction percentage:", error);
         }
-    }
+    }; 
 
-      
+    const fetchProjectPreferenceSatisfactionPercentage = async () => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/getProjectPreferenceSatisfactionPercentage?generate_team_name=${generateTeamName}&teamName=${selectedTeam.name}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch project preference satisfaction percentage");
+            }
+            const data = await response.json();
+            setPMSatisficationPercentage(data.project_preference_satisfaction_percentage); 
+        }   catch (error) {
+            console.error("Error fetching project preference satisfaction percentage:", error);
+        }
+    };
+   useEffect(() => {
+        if (selectedTeam && selectedTeam.name) {
+            fetchEnemySatisfactionPercentage();
+            fetchProjectPreferenceSatisfactionPercentage();
+        }
+    }, [selectedTeam]);
+
     return (
         <div className="teamContents">
             <Header />
@@ -456,10 +502,8 @@ export default function Team() {
                     <div className="visualizeTeamSettingsContainer">
                         <div className="visualizeTeamSettings">
                             <h1>Visualize Survey Responses</h1>
-                            <h2>                           
-                            </h2>
                             <hr />
-                            <h3>Step 1: Choose attributes to visualize</h3>
+                            <h3>Step 1: Choose attributes to visualize <i>(Active Selections will appear blue)</i></h3>
                             <div className="attributeButtons">
                                 {Object.keys(visualizationOptions).map((attribute) => (
                                     <button 
@@ -472,7 +516,7 @@ export default function Team() {
                                 ))}
                             </div>
 
-                            <p>These attributes are taken from the survey that was used to generate this team set.</p>
+                            <p><i>These attributes are taken from the survey that was used to generate this team set.</i></p>
 
                             <h3>Step 2: Select a visualization type for the chosen attribute(s):</h3>
                             <div className="visualizeChartContainer">
@@ -514,8 +558,8 @@ export default function Team() {
                                             ))}
                                         </tr>
                                     ))}
-                                    <tr>
-                                        <td>
+                                    <tr className = "buttonrow">
+                                        <td className = "buttondata">
                                             <div className = "showAttributesContainer">
                                                 <div className = "showAttributes">
                                                     <button  
@@ -554,7 +598,6 @@ export default function Team() {
                                                 border: "1px solid #ccc",
                                                 maxHeight: "500px",
                                                 overflowY: "auto",
-                                                width: "150px",
                                                 overflowX: "hidden",
                                             }}
                                             >
@@ -567,22 +610,20 @@ export default function Team() {
                                                     >                                                
                                                     {(provided) => (
                                                     <div
+                                                        className = "scrollableLeft"
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
                                                         style={{
                                                         ...provided.draggableProps.style,
                                                         backgroundColor: team.color,
-                                                        padding: "5px",
-                                                        width: "150px",
-                                                        textAlign: "center",
-                                                        cursor: "pointer",
-                                                        border: "1px solid black",
+                                                       
                                                         }}
                                                         onClick={() => handleTeamClick(team)}
                                                     >
-                                                        <h3>{team.name}</h3>
-                                                    </div>
+                                                        <h3 className="teamName" data-number={team.name.replace("Team ", "")}>
+                                                                {team.name}
+                                                            </h3>                                                    </div>
                                                     )}
                                                 </Draggable>
                                                 ))
@@ -600,22 +641,29 @@ export default function Team() {
                                 <div className = "teamInfoContainer">
                                         {selectedTeam && (
                                             <div className = "teamInfo">
-                                                <div className = "teamInfoAttributes">
-                                                        <p>{selectedTeam.name}</p>    
-                                                        <p>{selectedTeam.project}</p>     
-                                                                                                            <select
-                                                            value={selectedColor}
-                                                            onChange={(e) => changeTeamColor(e.target.value)}
-                                                            style={{
-                                                                padding: "10px",
-                                                                borderRadius: "4px",
-                                                                border: "1px solid #ccc",
-                                                            }}
-                                                        >
-                                                            <option value="red">Not Ready</option>
-                                                            <option value="yellow">In Progress</option>
-                                                            <option value="green">Ready</option>
-                                                        </select>
+                                                <div className="teamInfoAttributes">
+                                                    <p>{selectedTeam?.name || "No Team Selected"}</p>    
+                                                    <p>{selectedTeam?.project || "No Project Assigned"}</p>     
+                                                    <select
+                                                        value={selectedTeam?.color || "#FF9180"} // Use selectedTeam.color as the value
+                                                        onChange={(e) => {
+                                                            const newColor = e.target.value;
+                                                            changeTeamColor(newColor); // Update the backend and state
+                                                            setSelectedTeam((prev) => ({ ...prev, color: newColor })); // Update the selectedTeam color locally
+                                                        }}
+                                                        style={{
+                                                            padding: "10px",
+                                                            borderRadius: "4px",
+                                                            border: "1px solid #ccc",
+                                                            backgroundColor: selectedTeam?.color || "#FF9180", // Dynamically set the background color
+                                                            color: selectedTeam?.color === 
+                                                            "#FF9180" ? "white" : "black", // Adjust text color for better contrast
+                                                        }}
+                                                    >
+                                                        <option value="#FF9180">Not Ready</option>
+                                                        <option value="#FFF8B8">In Progress</option>
+                                                        <option value="#CAF2C2">Ready</option>
+                                                    </select>
                                                 </div>
                                                 <div className = "teamInfoAttributeInfoGraphicsContainer">
                                                     <div className = "teamInfoAttributeInfoGraphicsContainer">
@@ -633,207 +681,181 @@ export default function Team() {
                                                                         return (
                                                                             <div key={index} className="scrollable-x">
                                                                             {/* Render only if "Timeslot Availability" exists in visualizationTypes */}
-                                                                            {Object.entries(visualizationTypes)
-                                                                              .filter(([key]) => key === "timeslot") 
-                                                                              .map(([key, value]) => ( 
-                                                                                <ul key={key}>
-                                                                                  <div className="timeSlotSection">
-                                                                                        {Object.values(visualizationTypes).includes("Tally View") && (
+                                                                            {showVisualizations && 
+                                                                                Object.entries(visualizationTypes)
+                                                                                .filter(([key]) => selectedAttributes.has(key)) // Ensure only selected attributes are processed
+                                                                                .map(([key, value]) => (
+                                                                                    <ul key={key}>
+                                                                                    <div className={`${key}Section`}>
+                                                                                        {value === "Tally View" && (
                                                                                         <ul>
-                                                                                            <div className="timeSlotTallyView">
-                                                                                                <p>
-                                                                                                Time Slot Availability: 
-                                                                                                {timeSlotTallyCount
-                                                                                                    ? JSON.stringify(timeSlotTallyCount) 
-                                                                                                    : ""}
-                                                                                                </p>                                                                                               </div>
-                                                                                        </ul>
-                                                                                        )}
-                                                                                         {Object.values(visualizationTypes).includes("Heatmap") && (
-                                                                                        <ul>
-                                                                                            <div className="timeSlotHeatMap">
-                                                                                                <HeatMap generateTeamName={generateTeamName} teamName={selectedTeam.name}/>
-                                                                                                                                                                                                  </div>
-                                                                                        </ul>
-                                                                                        )}
-                                                                                  </div>
-                                                                                </ul>
-                                                                              ))}
-                                                                              {Object.entries(visualizationTypes)
-                                                                              .filter(([key]) => key === "academicHistory") 
-                                                                              .map(([key, value]) => ( 
-                                                                                <ul key={key}>
-                                                                                  <div className="academicHistorySection">
-                                                                                    {Object.values(visualizationTypes).includes("Tally View") && (
-                                                                                        <ul>
-                                                                                            <div className="94">
-                                                                                            <p>
-                                                                                                Academic History: 
-                                                                                                {academicHistoryTallyCount
-                                                                                                    ? JSON.stringify(academicHistoryTallyCount) 
-                                                                                                    : ""}
-                                                                                                </p>        
+                                                                                            <div className={`${key}TallyView`}>
+                                                                                            <h3>{key.replace(/([A-Z])/g, " $1").trim()}</h3>
+                                                                                            {key === "timeslot" && timeSlotTallyCount && (
+                                                                                                <ul>
+                                                                                                {Object.entries(timeSlotTallyCount).map(([range, count]) => (
+                                                                                                    <li key={range}>
+                                                                                                    {range}: {count}
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                                </ul>
+                                                                                            )}
+                                                                                            {key === "academicHistory" && academicHistoryTallyCount && (
+                                                                                                <ul>
+                                                                                                {Object.entries(academicHistoryTallyCount).map(([range, count]) => (
+                                                                                                    <li key={range}>
+                                                                                                    {range}: {count}
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                                </ul>
+                                                                                            )}
+                                                                                            {key === "gender" && genderTallyCount && (
+                                                                                                <ul>
+                                                                                                {Object.entries(genderTallyCount).map(([gender, count]) => (
+                                                                                                    <li key={gender}>
+                                                                                                    {gender}: {count}
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                                </ul>
+                                                                                            )}
+                                                                                            {key === "enemies" && enemyTallyCount && (
+                                                                                                <ul>
+                                                                                                {Object.entries(enemyTallyCount).map(([enemy, count]) => (
+                                                                                                    <li key={enemy}>
+                                                                                                    {enemy}: {count}
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                                </ul>
+                                                                                            )}
+                                                                                            {key === "ProjectManagement" && PMTallyCount && (
+                                                                                                <ul>
+                                                                                                {Object.entries(PMTallyCount).map(([pm, count]) => (
+                                                                                                    <li key={pm}>
+                                                                                                    {pm}: {count}
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                                </ul>
+                                                                                            )}
+                                                                                            {key === "projectPreference" && projectPreferenceTallyCount && (
+                                                                                                <ul>
+                                                                                                {Object.entries(projectPreferenceTallyCount).map(([preference, count]) => (
+                                                                                                    <li key={preference}>
+                                                                                                    {preference}: {count}
+                                                                                                    </li>
+                                                                                                ))}
+                                                                                                </ul>
+                                                                                            )}
                                                                                             </div>
                                                                                         </ul>
                                                                                         )}
-                                                                                    {Object.values(visualizationTypes).includes("Pie Chart") && (
+                                                                                        {/*Timeslot */}
+                                                                                        {value === "Heatmap" && key === "timeslot" && (
                                                                                         <ul>
-                                                                                            <div className="3890">
+                                                                                            <div className={`${key}HeatMap`}>
+                                                                                            <HeatMap generateTeamName={generateTeamName} teamName={selectedTeam.name} />
+                                                                                            </div>
+                                                                                        </ul>
+                                                                                        )}
+                                                                                        {/* academic history  */}
+
+                                                                                        {value === "Pie Chart" && key === "academicHistory" && (
+                                                                                        <ul>
+                                                                                            <div className={`${key}PieChart`}>
                                                                                             <PieChartAcademicHistory generateTeamName={generateTeamName} teamName={selectedTeam.name} />
-
                                                                                             </div>
                                                                                         </ul>
-                                                                                    )}
-                                                                                    {Object.values(visualizationTypes).includes("Radar Graph") && (
+                                                                                        )}
+                                                                                        {value === "Radar Graph" && key === "academicHistory" && (
                                                                                         <ul>
-                                                                                            <div className="5678" style={{width: '100%', display: 'flex'}}>
-                                                                                            <RadarChartComponent generateTeamName={generateTeamName} teamName= {selectedTeam.name}/>
-
+                                                                                            <div className={`${key}RadarGraph`} style={{ width: "100%", display: "flex" }}>
+                                                                                            <RadarChartComponent generateTeamName={generateTeamName} teamName={selectedTeam.name} />
                                                                                             </div>
                                                                                         </ul>
-                                                                                    )}
-                                                                                    {Object.values(visualizationTypes).includes("Comparison Bar Graph") && (
+                                                                                        )}
+                                                                                        {value === "Comparison Bar Graph" && key === "academicHistory" && (
                                                                                         <ul>
-                                                                                            <div className="6789">
+                                                                                            <div className={`${key}ComparisonBarGraph`}>
                                                                                             <BarChartAcademicHistory generateTeamName={generateTeamName} teamName={selectedTeam.name} />
                                                                                             </div>
                                                                                         </ul>
-                                                                                    )}
-                                                                                  </div>
-                                                        
-                                                                                </ul>
-                                                                              ))}
-                                                                              {Object.entries(visualizationTypes)
-                                                                              .filter(([key]) => key === "gender") 
-                                                                              .map(([key, value]) => ( 
-                                                                                <ul key={key}>
-                                                                                  <div className="genderSection">
-                                                                                    {Object.values(visualizationTypes).includes("Tally View") && (
+                                                                                        )}
+                                                                                        {/* Gender */}
+                                                                                        {value === "Pie Chart" && key ===  "gender" && (
                                                                                         <ul>
-                                                                                            <div className="88">
-                                                                                                Gender: 
-                                                                                                {genderTallyCount
-                                                                                                    ? JSON.stringify(genderTallyCount) 
-                                                                                                    : ""}
+                                                                                            <div className={`${key}PieChart`}>
+                                                                                            <PieChartGender generateTeamName={generateTeamName} teamName={selectedTeam.name} /> 
                                                                                             </div>
                                                                                         </ul>
                                                                                         )}
-                                                                                    {Object.values(visualizationTypes).includes("Pie Chart") && (
+                                                                                        {value === "Radar Graph" && key === "gender" && (
                                                                                         <ul>
-                                                                                            <div className="99">
-                                                                                            <PieChartGender generateTeamName={generateTeamName} teamName={selectedTeam.name} />
+                                                                                            <div className={`${key}RadarGraph`} style={{ width: "100%", display: "flex" }}>
+                                                                                            <RadarChartGender generateTeamName={generateTeamName} teamName={selectedTeam.name} />
                                                                                             </div>
                                                                                         </ul>
-                                                                                    )}
-                                                                                     {Object.values(visualizationTypes).includes("Radar Graph") && (
+                                                                                        )}
+                                                                                        {value === "Comparison Bar Graph" && key === "gender" && (
                                                                                         <ul>
-                                                                                            <div className="00">
-                                                                                                <RadarChartGender generateTeamName={generateTeamName} teamName={selectedTeam.name} />
+                                                                                            <div className={`${key}ComparisonBarGraph`}>
+                                                                                            <BarChartGender generateTeamName={generateTeamName} teamName={selectedTeam.name} /> 
                                                                                             </div>
                                                                                         </ul>
-                                                                                    )}
-                                                                                     {Object.values(visualizationTypes).includes("Comparison Bar Graph") && (
-                                                                                        <ul>
-                                                                                            <div className="7800">
-                                                                                            </div>
-                                                                                        </ul>
-                                                                                    )}
-                                                                                  </div>
-                                                                                </ul>
-                                                                              ))}
+                                                                                        )}
+                                                                                        {/* Enemies */}
+                                                                                        {value === "Satisfaction Percentage" && key === "enemies" && (
+                                                                                            <ul>
+                                                                                                <div className={`${key}SatisfactionPercentage`}>
+                                                                                                    {selectedTeam && (
+                                                                                                        <p>Enemy Satisfaction Percentage: {enemySatisfactionPercentage !== null ? `${enemySatisfactionPercentage}%` : "Loading..."}</p>
 
-                                                                              {Object.entries(visualizationTypes)
-                                                                              .filter(([key]) => key === "enemies") 
-                                                                              .map(([key, value]) => ( 
-                                                                                <ul key={key}>
-                                                                                  <div className="enemiesSection">
-                                                                                    {Object.values(visualizationTypes).includes("Tally View") && (
-                                                                                        <ul>
-                                                                                            <div className="90">
-                                                                                                Enemies: 
-                                                                                                {enemyTallyCount
-                                                                                                    ? JSON.stringify(enemyTallyCount) 
-                                                                                                    : ""}
-                                                                                            </div>
-                                                                                        </ul>
+                                                                                                    )}
+                                                                                                </div>
+                                                                                            </ul>
                                                                                         )}
-                                                                                    {Object.values(visualizationTypes).includes("Satisfacation Percentage") && (
-                                                                                        <ul>
-                                                                                            <div className="89">
-                                                                                            </div>
-                                                                                        </ul>
-                                                                                    )} 
-                                                                                  </div>
-                                                                                </ul>
-                                                                              ))}
-                                                                              {Object.entries(visualizationTypes)
-                                                                              .filter(([key]) => key === "ProjectManagement") 
-                                                                              .map(([key, value]) => ( 
-                                                                                <ul key={key}>
-                                                                                  <div className="PMSection">
-                                                                                    {Object.values(visualizationTypes).includes("Tally View") && (
-                                                                                        <ul>
-                                                                                            <div className="123">
-                                                                                            <p>
-                                                                                                Academic History: 
-                                                                                                {PMTallyCount
-                                                                                                    ? JSON.stringify(PMTallyCount) 
-                                                                                                    : "Loading..."}
-                                                                                                </p>        
-                                                                                            </div>
-                                                                                        </ul>
+                                                                                        {/* Project Managmeent  */}
+                                                                                        {value === "Pie Chart" && key === "ProjectManagement" && (
+                                                                                            <ul>
+                                                                                                <div className={`${key}PieChart`}>
+                                                                                                <PieChartPM generateTeamName={generateTeamName} teamName={selectedTeam.name} />
+                                                                                                </div>
+                                                                                            </ul>
                                                                                         )}
-                                                                                    {Object.values(visualizationTypes).includes("Pie Chart") && (
-                                                                                        <ul>
-                                                                                            <div className="256">
-                                                                                            <PieChartPM generateTeamName={generateTeamName} teamName={selectedTeam.name} />
-                                                                                            </div>
-                                                                                        </ul>
-                                                                                    )} 
-                                                                                     {Object.values(visualizationTypes).includes("Radar Graph") && (
-                                                                                        <ul>
-                                                                                            <div className="765">
+                                                                                        {value === "Radar Graph" && key === "ProjectManagement" && (
+                                                                                            <ul>
+                                                                                                <div className={`${key}RadarGraph`} style={{ width: "100%", display: "flex" }}>
                                                                                                 <RadarChartPM generateTeamName={generateTeamName} teamName={selectedTeam.name} />
-
-                                                                                            </div>
-                                                                                        </ul>
-                                                                                    )}
-                                                                                    {Object.values(visualizationTypes).includes("Comparison Bar Graph") && (
-                                                                                        <ul>
-                                                                                            <div className="567">
-                                                                                            </div>
-                                                                                        </ul>
-                                                                                    )}
-                                                                                  </div>
-                                                                                </ul>
-                                                                              ))}
-                                                                            {Object.entries(visualizationTypes)
-                                                                              .filter(([key]) => key === "projectPreference") 
-                                                                              .map(([key, value]) => ( 
-                                                                                <ul key={key}>
-                                                                                  <div className="preferenceSection">
-                                                                                    {Object.values(visualizationTypes).includes("Tally View") && (
-                                                                                        <ul>
-                                                                                            <div className="projectPreferencePercentage">
-                                                                                                <p>
-                                                                                                Project Preference: 
-                                                                                                {projectPreferenceTallyCount
-                                                                                                    ? JSON.stringify(projectPreferenceTallyCount) 
-                                                                                                    : "Loading..."}
-                                                                                                </p>   
-                                                                                            </div>
-                                                                                        </ul>
+                                                                                                </div>
+                                                                                            </ul>
                                                                                         )}
-                                                                                    {Object.values(visualizationTypes).includes("Satisfacation Percentage") && (
-                                                                                        <ul>
-                                                                                            <div className="projectPreferencePercentage1">
-                                                                                            </div>
-                                                                                        </ul>
-                                                                                    )} 
-                                                                                  </div>
-                                                                                </ul>
-                                                                              ))}
-                                                                          
+                                                                                        {value === "Comparison Bar Graph" && key === "ProjectManagement" && (
+                                                                                            <ul>
+                                                                                                <div className={`${key}ComparisonBarGraph`}>
+                                                                                                <BarChartPM generateTeamName={generateTeamName} teamName={selectedTeam.name} />
+                                                                                                </div>
+                                                                                            </ul>
+                                                                                        )}
+                                                                                        {/* Project Preference */}
+                                                                                        {value === "Satisfaction Percentage" && key === "projectPreference" && (
+                                                                                            <ul>
+                                                                                                <div className={`${key}SatisfactionPercentage`}>
+                                                                                                {value === "Satisfaction Percentage" && key === "projectPreference" && (
+                                                                                            <ul>
+                                                                                                <div className={`${key}SatisfactionPercentage`}>
+                                                                                                    <h1>Selected Project: Project 1</h1>
+                                                                                                    {selectedTeam && (
+                                                                                                        <p>Project Preference Satisfaction Percentage: {PMSatisficationPercentage !== null ? `${PMSatisficationPercentage}%` : "Loading..."}</p>
+
+                                                                                                    )}
+                                                                                                </div>
+                                                                                            </ul>
+                                                                                            )}
+                                                
+                                                                                                </div>
+                                                                                            </ul>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    </ul>
+                                                                                ))}                                              
                                                                           </div>
                                                                           
                                                                         );
@@ -845,56 +867,77 @@ export default function Team() {
                                                     </div> 
                                                 </div> 
                                                 <div className="studentList">
+                                                    <button
+                                                        onClick={() => setIsStudentListOpen((prev) => !prev)}
+                                                        style={{
+                                                            padding: "10px",
+                                                            borderRadius: "4px",
+                                                            border: "1px solid #ccc",
+                                                            backgroundColor: "#f0f0f0",
+                                                            cursor: "pointer",
+                                                            marginBottom: "10px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "space-between",
+                                                        }}
+                                                    >
+                                                        {isStudentListOpen ? "Hide Students" : "Show Students"}
+                                                        <span style={{ marginLeft: "10px" }}>
+                                                            {isStudentListOpen ? "▲" : "▼"}
+                                                        </span>
+                                                    </button>
+
                                                     <table className="studentTable">
                                                         <thead>
                                                             <tr>
                                                                 <th>Name</th>
                                                                 <th>Student ID</th>
-                                                                <th>Gender</th>
-                                                                <th>Academic History</th>
-                                                                <th>Time Slot Availability</th>
-                                                                <th>Enemy</th>
-                                                                <th>PM</th>
-                                                                <th>Project Preference</th>
+                                                                {selectedAttributes.has("gender") && <th>Gender</th>}
+                                                                {selectedAttributes.has("academicHistory") && <th>Academic History</th>}
+                                                                {selectedAttributes.has("timeslot") && <th>Time Slot Availability</th>}
+                                                                {selectedAttributes.has("enemies") && <th>Enemy</th>}
+                                                                {selectedAttributes.has("ProjectManagement") && <th>PM</th>}
+                                                                {selectedAttributes.has("projectPreference") && <th>Project Preference</th>}
                                                                 <th>Move Student</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            {selectedTeam && selectedTeam.students && selectedTeam.students.length > 0 ? (
-                                                                selectedTeam.students.map((student, index) => (
-                                                                    <tr key={index}>
-                                                                        <td>{student.name}</td>
-                                                                        <td>{student.studentID}</td>
-                                                                        <td>{student.gender}</td>
-                                                                        <td>{student.academicHistory}</td>
-                                                                        <td>{student.timeSlot}</td>
-                                                                        <td>{student.enemy}</td>
-                                                                        <td>{student.PM}</td>
-                                                                        <td>{student.projectPreference}</td>
-                                                                        <td>
-                                                                            <select 
-                                                                                value={selectedTeam?.name || ""} 
-                                                                                onChange={(e) => handleTeamChange(student, e.target.value)}
+                                                        {isStudentListOpen && (
+                                                            <tbody>
+                                                                {selectedTeam && selectedTeam.students && selectedTeam.students.length > 0 ? (
+                                                                    selectedTeam.students.map((student, index) => (
+                                                                        <tr key={index}>
+                                                                            <td>{student.name}</td>
+                                                                            <td>{student.studentID}</td>
+                                                                            {selectedAttributes.has("gender") && <td>{student.gender}</td>}
+                                                                            {selectedAttributes.has("academicHistory") && <td>{student.academicHistory}</td>}
+                                                                            {selectedAttributes.has("timeslot") && <td>{student.timeSlot}</td>}
+                                                                            {selectedAttributes.has("enemies") && <td>{student.enemy}</td>}
+                                                                            {selectedAttributes.has("ProjectManagement") && <td>{student.PM}</td>}
+                                                                            {selectedAttributes.has("projectPreference") && <td>{student.projectPreference}</td>}
+                                                                            <td>
+                                                                                <select
+                                                                                    value={selectedTeam?.name || ""}
+                                                                                    onChange={(e) => handleTeamChange(student, e.target.value)}
                                                                                 >
-                                                                                <option value="">----------</option>
-                                                                                {initialTeams.map((team) => (
-                                                                                    <option key={team.name} value={team.name}>
-                                                                                        {team.name}
-                                                                                    </option>
-                                                                                ))}
-                                                                            </select>
+                                                                                    <option value="">----------</option>
+                                                                                    {initialTeams.map((team) => (
+                                                                                        <option key={team.name} value={team.name}>
+                                                                                            {team.name}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </select>
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))
+                                                                ) : (
+                                                                    <tr>
+                                                                        <td colSpan="4" style={{ textAlign: "center", padding: "10px" }}>
+                                                                            No students available.
                                                                         </td>
                                                                     </tr>
-                                                                ))
-                                                            ) : (
-                                                                <tr>
-                                                                    <td colSpan="4" style={{ textAlign: "center", padding: "10px" }}>
-                                                                        No team selected or no members available.
-                                                                    </td>
-                                                                </tr>
-                                                            )}
-                                                        </tbody>
-
+                                                                )}
+                                                            </tbody>
+                                                        )}
                                                     </table>
                                                 </div>
                                             </div>

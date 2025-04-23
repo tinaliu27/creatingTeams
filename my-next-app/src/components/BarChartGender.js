@@ -1,47 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
-
-// Register the necessary components of Chart.js
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-const BarChartGender= ({ generateTeamName, teamName }) => {
+const BarChartGender = ({ generateTeamName, teamName }) => {
   const [chartData, setChartData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchTeamSpecificAverage = async () => {
+    const fetchGenderAverages = async () => {
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/getTeamAverage?generate_team_name=${generateTeamName}`
+        const teamResponse = await fetch(
+          `http://127.0.0.1:8000/api/getGenderAverageForTeam?generate_team_name=${generateTeamName}&teamName=${teamName}`
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
+        if (!teamResponse.ok) {
+          throw new Error("Failed to fetch team average data");
         }
 
-        const data = await response.json();
+        const teamData = await teamResponse.json();
 
-        // Find the specific team data
-        const teamData = data.teams.find((team) => team.team_name === teamName);
+        const classResponse = await fetch(
+          `http://127.0.0.1:8000/api/getGenderAverageForClass?generate_team_name=${generateTeamName}`
+        );
 
-        if (!teamData) {
-          throw new Error(`Team with name "${teamName}" not found`);
+        if (!classResponse.ok) {
+          throw new Error("Failed to fetch class average data");
         }
 
-        // Prepare the chart data
+        const classData = await classResponse.json();
+
         const chartData = {
-          labels: ["Academic History Averages "],
+          labels: ["Gender Metric Averages"],
           datasets: [
             {
               label: "Team Average",
-              data: [teamData.average_academic_history],
+              data: [teamData.average_metric],
               backgroundColor: 'rgba(54, 162, 235, 0.6)', // Team average color
               borderColor: 'rgba(54, 162, 235, 1)',
               borderWidth: 1,
             },
             {
               label: "Class Average",
-              data: [data.class_average_academic_history],
+              data: [classData.average_metric],
               backgroundColor: 'rgba(255, 99, 132, 0.6)', // Class average color
               borderColor: 'rgba(255, 99, 132, 1)',
               borderWidth: 1,
@@ -51,11 +52,12 @@ const BarChartGender= ({ generateTeamName, teamName }) => {
 
         setChartData(chartData);
       } catch (error) {
-        console.error("Error fetching team-specific average data:", error);
+        console.error("Error fetching gender average data:", error);
+        setError(error.message);
       }
     };
 
-    fetchTeamSpecificAverage();
+    fetchGenderAverages();
   }, [generateTeamName, teamName]);
 
   const options = {
@@ -80,7 +82,7 @@ const BarChartGender= ({ generateTeamName, teamName }) => {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Average Academic History (%)",
+          text: "Average Gender Metric (%)",
         },
       },
     },
@@ -88,7 +90,8 @@ const BarChartGender= ({ generateTeamName, teamName }) => {
 
   return (
     <div>
-      <h2>Team vs Class Average Academic History</h2>
+      <h2>Team vs Class Average Gender Metric</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       {chartData ? (
         <div style={{ position: "relative", height: "200px", width: "400px" }}>
           <Bar data={chartData} options={options} />

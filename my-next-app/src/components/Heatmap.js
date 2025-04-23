@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
-import HeatmapChart from 'recharts'; 
-// Register chart elements for Chart.js
+import { Chart } from 'react-chartjs-2';
 ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const HeatMap = ({ generateTeamName, teamName }) => {
@@ -11,15 +10,13 @@ const HeatMap = ({ generateTeamName, teamName }) => {
     useEffect(() => {
         const fetchTimeSlotData = async () => {
             try {
-                // Ensure generateTeamName and teamName are provided
                 if (!generateTeamName || !teamName) {
                     setError("Both generateTeamName and teamName are required.");
                     return;
                 }
 
-                // Construct the API endpoint with the provided parameters
                 const response = await fetch(
-                    `http://127.0.0.1:8000/api/getTimeSlotAvailabilityCount?generate_team_name=${generateTeamName}&teamName=${teamName}`
+                    `http://127.0.0.1:8000/api/getTimeSlotAvailbilityCount?generate_team_name=${generateTeamName}&teamName=${teamName}`
                 );
 
                 if (!response.ok) {
@@ -27,13 +24,13 @@ const HeatMap = ({ generateTeamName, teamName }) => {
                 }
 
                 const data = await response.json();
-                
+
                 if (data.time_slot_availability_counts) {
                     const timeSlotCounts = data.time_slot_availability_counts;
-                    const formattedData = Object.keys(timeSlotCounts).map((category, index) => ({
-                        x: category, // Time Slot Category
-                        y: 0, // Just set to zero for now, since we are simulating a heatmap
-                        v: timeSlotCounts[category], // Time Slot Count
+                    const formattedData = Object.keys(timeSlotCounts).map((category) => ({
+                        x: category,
+                        y: 'Time Slots',
+                        value: timeSlotCounts[category],
                     }));
                     setTimeSlotData(formattedData);
                 } else {
@@ -45,39 +42,71 @@ const HeatMap = ({ generateTeamName, teamName }) => {
         };
 
         fetchTimeSlotData();
-    }, [generateTeamName, teamName]); // Depend on both generateTeamName and teamName
+    }, [generateTeamName, teamName]);
+
+    // Prepare data for the heatmap
+    const labels = ['No Answer Provided', '6-9 am', '9-12 pm', '12-3 pm', '3-6 pm', '6-9 pm', '9-12 am'];
+    const dataValues = labels.map((label) => {
+        const slot = timeSlotData.find((item) => item.x === label);
+        return slot ? slot.value : 0; // Default to 0 if no data
+    });
 
     const chartData = {
+        labels,
         datasets: [
             {
-                label: 'Time Slot Availability Heatmap',
-                data: timeSlotData,
-                backgroundColor: 'rgba(255, 99, 132, 0.6)', // Set color for heatmap
-                borderColor: 'rgba(255, 99, 132, 1)',
+                label: 'Time Slot Availability',
+                data: dataValues,
+                backgroundColor: (context) => {
+                    const value = context.raw;
+                    const max = Math.max(...dataValues);
+                    const min = Math.min(...dataValues);
+                    const normalizedValue = (value - min) / (max - min || 1); // Normalize between 0 and 1
+                    return `rgba(255, 99, 132, ${normalizedValue})`; // Gradient effect
+                },
                 borderWidth: 1,
-                hoverBackgroundColor: 'rgba(255, 99, 132, 1)',
-                hoverBorderColor: 'rgba(255, 99, 132, 1)',
             },
         ],
+    };
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false,
+            },
+            tooltip: {
+                callbacks: {
+                    label: (context) => `Value: ${context.raw}`,
+                },
+            },
+        },
+        scales: {
+            x: {
+                type: 'category',
+                title: {
+                    display: true,
+                    text: 'Time Slots',
+                },
+            },
+            y: {
+                type: 'linear',
+                title: {
+                    display: true,
+                    text: 'Availability',
+                },
+                ticks: {
+                    stepSize: 1,
+                },
+            },
+        },
     };
 
     return (
         <div>
             {error && <p>{error}</p>}
-            <div style={{ width: '80%', height: '400px', margin: 'auto' }}>
-                <HeatmapChart data={chartData} options={{
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'category',
-                            labels: ['No Answer Provided', '6-9 am', '9-12 pm', '12-3 pm', '3-6 pm', '6-9 pm', '9-12 am'],
-                        },
-                        y: {
-                            type: 'category',
-                            labels: ['Time Slots'],
-                        },
-                    },
-                }} />
+            <div style={{ width: '400px', height: '200px', margin: 'auto'}}>
+                <Chart type="bar" data={chartData} options={options} />
             </div>
         </div>
     );
