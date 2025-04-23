@@ -81,10 +81,15 @@ const checkTeamNameExists = async () => {
 
 // Handles generating teams
 const handleSaveTeams = async () => {
+  if (!generateTeamName.trim()) {
+    alert("Please enter a team name.");
+    return; // Stop further processing if the name is empty
+  }
   // Check if the team name already exists
+  
   const teamNameExists = await checkTeamNameExists();
   if (teamNameExists) {
-    setMessage("The team name already exists. Please input another name.");
+    alert("The team name already exists. Please input another name.");
     return; // Stop further processing if the name already exists
   }
 
@@ -154,15 +159,109 @@ return (
  <div>
   <Header />
   <div className="pageContent">
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Student List</h1>
-      
+    <div className="p-4">      
       {/* Loading & Error Messages */}
-      {loading && <p>Loading students...</p>}
+      {loading}
       {error && <p className="text-red-500">{error}</p>}
       {message && <p className="text-red-500">{message}</p>}
+      <h1>Generate Teams</h1>
+      {/* Input for User */}
+      <div className = "questionnareContainer">
+      <div className = "questionnare">
+        <div className = "questionnareQuestions">
+            <div className = "questionnareLeft">
+            <div className = "questionBox">
+              <label className="block mb-2">Title of Team Generation:</label>
+              <input
+                  type="text"
+                  className="questiontitle"
+                  value={generateTeamName}
+                  onChange={handGenerateTeamNameChange}
+                  placeholder="Enter team title"
+                />
+            </div>
+            <div className = "questionBox">
+            <label className="block mb-2">Select number of people per team:</label>
+            <select
+                className="question"
+                value={teamSize}
+                onChange={handleTeamSize}
+              >
+                {Array.from({ length: Math.min(students.length, 26) }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+            </div>
+            <div className = "questionnareRight">
+            <div className="questionBox2">
+              <label className="block mb-2">Do you want to diversify teams?</label>
+              <div className="yesNo">
+              <label>
+                <input
+                  type="radio"
+                  name="diversifyGender"
+                  value="yes"
+                  checked={diversifyGender === true}
+                  onChange={() => setDiversifyGender(true)}
+                />
+                Yes
+              </label>
+              <label className="ml-4">
+                <input
+                  type="radio"
+                  name="diversifyGender"
+                  value="no"
+                  checked={diversifyGender === false}
+                  onChange={() => setDiversifyGender(false)}
+                />
+                No
+              </label>
+              </div>
+            </div>
 
+            <div className="questionBox2">
+              <label className="block mb-2">Do you want to match students with their preferences?</label>
+              <div className = "yesNo">
+              <label>
+                <input
+                  type="radio"
+                  name="matchPreferences"
+                  value="yes"
+                  checked={matchPreferences === true}
+                  onChange={() => setMatchPreferences(true)}
+                />
+                Yes
+              </label>
+              <label className="ml-4">
+                <input
+                  type="radio"
+                  name="matchPreferences"
+                  value="no"
+                  checked={matchPreferences === false}
+                  onChange={() => setMatchPreferences(false)}
+                />
+                No
+              </label>
+              </div>
+            </div>
+            </div>
+            </div>
+        <div className  = "questionAlone">
+          <button
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            onClick={handleSaveTeams}
+          >
+            Generate Teams
+          </button>
+        </div>
+      </div>
+      </div>
       {/* Table for Students */}
+      <h1 className="studentList">Student List</h1>
+
       <div className="home-table-container">
         <table className="home-student-table">
           <thead>
@@ -194,82 +293,6 @@ return (
         </table>
       </div>
       
-      <label className="block mb-2">Title of Team Generation:</label>
-      <input
-          type="text"
-          className="border p-2 rounded w-full"
-          value={generateTeamName}
-          onChange={handGenerateTeamNameChange}
-          placeholder="Enter team title"
-        />
-
-      <label className="block mb-2">Select number of people per team:</label>
-      <select
-          className="border p-2 rounded"
-          value={teamSize}
-          onChange={handleTeamSize}
-        >
-          {Array.from({ length: Math.min(students.length, 26) }, (_, i) => (
-            <option key={i + 1} value={i + 1}>
-              {i + 1}
-            </option>
-          ))}
-        </select>
-
-      <div className="mt-4">
-        <label className="block mb-2">Do you want to diversify teams?</label>
-        <label>
-          <input
-            type="radio"
-            name="diversifyGender"
-            value="yes"
-            checked={diversifyGender === true}
-            onChange={() => setDiversifyGender(true)}
-          />
-          Yes
-        </label>
-        <label className="ml-4">
-          <input
-            type="radio"
-            name="diversifyGender"
-            value="no"
-            checked={diversifyGender === false}
-            onChange={() => setDiversifyGender(false)}
-          />
-          No
-        </label>
-      </div>
-
-      <div className="mt-4">
-        <label className="block mb-2">Do you want to match students with their preferences?</label>
-        <label>
-          <input
-            type="radio"
-            name="matchPreferences"
-            value="yes"
-            checked={matchPreferences === true}
-            onChange={() => setMatchPreferences(true)}
-          />
-          Yes
-        </label>
-        <label className="ml-4">
-          <input
-            type="radio"
-            name="matchPreferences"
-            value="no"
-            checked={matchPreferences === false}
-            onChange={() => setMatchPreferences(false)}
-          />
-          No
-        </label>
-      </div>
-       
-      <button
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        onClick={handleSaveTeams}
-      >
-        Generate Teams
-      </button>
     
     </div>
   </div>
