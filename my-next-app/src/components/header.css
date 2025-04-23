@@ -1,0 +1,79 @@
+.headerContainer {
+    width: 100%; 
+    display: flex; 
+    align-items: center;
+    flex-direction: column;
+    position: fixed; 
+    top: 0; 
+    z-index: 1000; /* Keeps it above other elements */
+}
+.header {
+    background-color: #222234; 
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    display: flex; 
+    color: white; 
+    width: 100%; 
+}
+.header .left {
+    display: flex; 
+    flex-direction: row;
+    align-items: center;
+    padding: 15px; 
+}
+.header .left h2{
+    margin-left: 10px; 
+    color: rgb(154, 153, 153);
+}
+.header .right {
+    display: flex; 
+    padding: 15px; 
+    color: gray; 
+}
+.headerSecondContainer{
+    width: 100%; 
+    display: flex; 
+    background-color: white;
+    padding: 25px; 
+    display: flex; 
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    border-bottom: rgb(76, 76, 76);
+
+}
+.headerSecond{
+    color: #2180d6; 
+}
+.headerSecond li:hover{
+    color: #0f4577; 
+}
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .tooltip::before {
+    content: attr(data-title); /* Use the data-title attribute for the tooltip text */
+    position: absolute;
+    top: -30px; /* Position the tooltip above the link */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+  }
+  
+  .tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+  }

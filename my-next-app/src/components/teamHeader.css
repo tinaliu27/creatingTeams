@@ -1,0 +1,16 @@
+.teamHeaderContainer{
+    background-color: white;
+    margin: 10px 30px; 
+    border: 1px solid rgb(34, 160, 180);
+    border-radius: 10px; 
+
+}
+.teamHeader{
+    padding: 15px; 
+    width: 100%; 
+    display: flex;
+}
+.teamHeader h1{
+    font-weight: 700;
+    font-size: 22px;
+}

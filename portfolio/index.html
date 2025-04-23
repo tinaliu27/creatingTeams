@@ -1,0 +1,299 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Tina Bowen – UI/UX Designer Portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="home.css">
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        // Move these inside the DOMContentLoaded to ensure they exist
+        const frontendTab = document.getElementById('frontendTab');
+        const backendTab = document.getElementById('backendTab');
+        const frontendContent = document.getElementById('frontendContent');
+        const backendContent = document.getElementById('backendContent');
+  
+        function activate(tab) {
+          if (tab === 'frontend') {
+            frontendTab.classList.add('active');
+            backendTab.classList.remove('active');
+            frontendContent.style.display = 'block';
+            backendContent.style.display = 'none';
+          } else {
+            backendTab.classList.add('active');
+            frontendTab.classList.remove('active');
+            backendContent.style.display = 'block';
+            frontendContent.style.display = 'none';
+          }
+        }
+  
+        frontendTab.addEventListener('click', () => activate('frontend'));
+        backendTab.addEventListener('click', () => activate('backend'));
+        activate('frontend');
+      });
+      function toggleDropdown(id) {
+          const content = document.getElementById(id);
+          const btn = document.querySelector(`button[onclick="toggleDropdown('${id}')"]`);
+          if (content.style.display === "none" || content.style.display === "") {
+              content.style.display = "block";
+              btn.innerHTML = btn.innerHTML.replace("▼", "▲");
+          } else {
+              content.style.display = "none";
+              btn.innerHTML = btn.innerHTML.replace("▲", "▼");
+          }
+      }
+    </script>
+  </head>
+<body>
+  <header>
+    <nav class="nav">
+        <a href="#home" class="active">Home</a>
+        <a href="#tech-stack">Tech Stack</a>
+        <a href="#ui-ux-elements">UI UX Elements</a>
+    </nav>
+  </header>
+  <body>
+  <div class = "mainContainer" id="home">
+    <div class = "main">
+        <h1>COSC449 - Directed Studies Project Demonstration</h1>
+        <i>Supervised by Dr. Bowen Hui </i>
+        <p>Project Highlights, Tech Stack, and Feedback by Tina Liu</p>
+        <iframe width="500px" height="200px"
+        src="https://www.youtube.com/embed/mGLSt6dHebw"            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+    </div>
+    <div class = "techStackContainer" id="tech-stack">
+        <div class = "techStack">
+            <h2>Tech Stack</h2>
+            <div class="tabs">
+                <button class="tab" id="frontendTab">Frontend</button>
+                <button class="tab" id="backendTab">Backend</button>
+            </div>
+            <div class="tabContent" id="frontendContent" style="display: block;">
+                <ul>
+                  <li>React.js</li>
+                  <li>BootStrap</li>
+                  <li>HTML/CSS</li>
+                </ul>
+            </div>
+            <div class="tabContent" id="backendContent" style="display: none;">
+                <ul>
+                  <li>Python</li>
+                  <li>Django</li>
+                  <li>Django REST Framework</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="demonstrationContainer">
+        <div class = "demonstration">
+        <p>Teamable Analytics simplifies the process of creating effective student teams for UBC instructors by transforming student data into clear, actionable insights. With little existing research in this space, this tool fills a critical gap—making team formation smarter, faster, and more intuitive. For my Directed Studies, I worked on improving UI UX elements to make the process more efficient and smoother for instructors. </p>
+        <h2>Tasks</h2>
+        <p>On Teamable Analytics, Dr. Bowen Hui identified key UI/UX challenges affecting instructor experience—too much on-screen text, a complicated decision-making process, and limited accessibility to different team configurations. I focused on simplifying the interface by decluttering data, reducing scrolling, and streamlining how instructors view and compare team options.</p>
+        
+        <button class="dropdown-btn" type="button" onclick="toggleDropdown('semester1Content')">Semester 1 Process ▼</button>
+        <div class="dropdown-content" id="semester1Content" style="display:none;">
+            <div class="semester1">
+                <h2>Semester 1 Process</h2>
+                <h4>Step 1: HTA and Navigation Wireframes</h4>
+                <p>Before any coding, it was important for me to break down the the major tasks on creating teams into subtasks. Thus, I created a Hierarchical Task Analysis of instructors creating teams. After multiple iterations, the final HTA included 7 major subtasks for forming groups as an instructor: "Defining Variabls and criteria for team formation that aligns with prohect's goals and requirmeents to determine which factors are important for project's success", "Gather/Collect Data on Students", "Create teams", "Team Initation and Collaboration", "Gather Feedback from teams", "Release Feedback Results", and "Teams are finalized and can no longer be amended". </p>
+                <i>Link to <a href="https://www.figma.com/board/OtLV29ssop7BtYemVFhiT2/Directed-Studies---HTA?node-id=0-1&t=cqnJluGNED7uydTe-1">Figma File</a></i>
+                
+                <h4>Step 2: Wireframes and Low Fidelity MockUps</h4>
+                <p>To better understand the workflow of users interacting with the system, I broke down tasks into multiple wireframes. Each wireframe would be accompanied by assumptions and low fidelity mockups that would align with the flow of each task. Attached below is an example of 1 of 6 wireframes along with one of the low fidelity mockups. </p>
+                <div class="figures">
+                    <img src="img/Figure1.png" alt="Wireframe Example">
+                    <img src="img/Figure2.png" alt="Wireframe Example">
+                </div>
+                <i>Link to <a href="https://www.figma.com/design/1A2dOMrZThbNFR0HZHyut7/Wireframing?node-id=0-1&t=YMErfjUyOVuwlxVT-1">Figma Wireframes</a></i>
+    
+                <h4>Step 3: High Fidelity Mockups and Figma Demo </h4>
+                <p>After discussing potential mockups and understanding the fundamental user worflow, I designed multiple high fidelity mockups for team generation. This process included creating mockups for a pre-team generation survey, a questionnare dedicated to matching instructor's team preferences to an algorithm. On top of creating high fidelity mockups, I created an itneractive Figma demo so users can get directed to a specific algorithm based on their responses.  </p>
+                <div class="figures">
+                    <img src="img/Figure3.png" alt="Mockup Example">
+                    <img src="img/Figure4.png" alt="Mockup Example">
+                </div>
+                <div class="figmaDemo">
+                    <!-- <iframe width="100%" height="100%"
+                        src="img/Screen Recording 2025-04-23 at 1.55.47 AM.mov"
+                        title="Figma Demo"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe> -->
+                </div>
+                <i>Link to High Fidelity <a href= "https://www.figma.com/design/LKdz3CTaBNayTidIEXyOde/Wireframe---Novemeber?node-id=0-1&p=f&t=perHpCMlOUYUfhYD-0">Prototypes.</a></i>
+                <br>
+                <i>Link to user flow: <a href="https://www.figma.com/proto/BfIGrFtdEfxLaX1UU5MA5T/Survey-Prototype?node-id=362-1143&p=f&t=zbSDdKfQNdUNhvuo-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A3&show-proto-sidebar=1">on Figma!</a></i>
+                <h4>Reflection</h4>
+                <p>After breaking down the concept of creating teams through HTAs, wireframes, user flows, and prototypes, I felt prepared to tackle the issue through code in Semester 2!</p>
+            </div>
+        </div>
+    
+        <button class="dropdown-btn" type="button" onclick="toggleDropdown('semester2Content')">Semester 2 Process ▼</button>
+        <div class="dropdown-content" id="semester2Content" style="display:none;">
+            <div class="semester2">
+                <h2>Semester 2 Process</h2>
+                <h4>Step 1: Identifying Areas for Improvement on <a href="https://teamableanalytics.ok.ubc.ca/">TeamAble Analytics</a></h4>
+                <p>Before the coding portion, Dr. Bowen Hui identified the pages that needed UI / UX improvements. We agreed that we would focus on Generated Teams section where users can use visualizations to better understand their teams.</p>
+                
+                <h4>Step 2: Creating low and high fidelity mockups</h4>
+                <p>To avoid blindly coding the pages, Dr. Bowen Hui and I worked on elements that should definitely be incorporated on the pages that would improve the UI/UX for instructors. This included adding a drag and drop feature for users to sort teams, minimizing text on the screen with dropdown menus, and more. Attached below are the low-fidelity and high-fidelity mockups. </p>
+                <i>Low Fidelity Mockups </i>
+                <div class="low-fidelity">
+                    <img src="img/Team Amble Machetes-1 2.jpg" alt="Low Fidelity Mockup">
+                    <img src="img/Team Amble Machetes-2 2.jpg" alt="Low Fidelity Mockup">
+            
+                </div>
+                <div class="low-fidelity">
+                    <img src="img/Team Amble Machetes-3 2.jpg" alt="Low Fidelity Mockup">
+                    <img src="img/Team Amble Machetes-5 2.jpg" alt="Low Fidelity Mockup">
+                </div>
+
+                <i>High Fidelity Mockups</i>
+                <div class="high-fidelity">
+                    <img src="img/Screenshot 2025-04-23 at 2.07.57 AM.png">
+                    <img src="img//Screenshot 2025-04-23 at 2.08.06 AM.png">
+                </div>
+    
+                <h4>Step 3: Coding </h4>
+                <p>At the start, the learning curve to understand an unfamiliar backend, Django, was tough. However, after several weeks of mocking up random data, I was able to mostly connect the frontend and backend together for the user to visualize different attributes. I integrated new components to the page while also keeping it consistent through headers/footers and more. This process was by far the most complicated because of major bugs and complications, but I am proud of the work I was able to accomplish. To access a full demo of the project, scroll to the top for the youtube hyper link!</p>
+                
+                <h4>Step 4: Feedback </h4>
+                <p>Although the majority of the semester was spent on coding, I was able to spend a couple of days collecting feedback from peers, random UBCO students, and friends based on the elements I incorporated on the page. The type of feedback I used was think-aloud testing, where participants followed a short task list while using the app and would say their thoughts out loud. Not only would they describe what they're doing, but it was a great usability test to see what users' did or did not understand when using the app. </p>
+                
+                <h4>Reflection</h4>
+                <p>Overall, this experience highlighted major tasks that UI/UX Developers accomplish. Dr. Bowen Hui was an excellent supervisor that pushed me to consider different perspectives and provided reliable feedback. Not only was I able to utilize my creative freedom, but it was a great opportunity to learn about HCI at a practical level. Thank you so much for your supervision Dr. Bowen Hui! </p>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class = "UIUXContainer" id="ui-ux-elements">
+        <div class = "UIUX">
+        <h1>Three UI/UX Elements Incorporated</h1>
+        <ol>
+            <li>
+                <h2>Sorting Teams</h2>
+                <div className = "beforeAfter">
+                    <div className = "item">
+                        <p>Before: "Sort Teams" </p>
+                        <img src="img/Before1.png" alt="Before Sorting Teams" width="50%">
+                    </div>
+                    <div className = "item">
+                        <p>After: "Sort Teams" </p>
+                        <img src="img/After1.png" alt="After Sorting Teams" width="50%">
+                    </div>
+                </div>
+                <p>The first UI/UX feature I introduced in the project was a <b>draggable and droppable interface</b> that allows users to efficiently access and organize all teams. Instead of scrolling through a long list to find a specific team, users can now quickly locate and rearrange teams with ease. To further streamline the review process, I added a <b>progress-based categorization system</b> using a dropdown menu located at the top right of the screen. Users can label each team as <b>"Not Ready"</b>, <b>"In Progress"</b>, or <b>"Ready"</b>, depending on their review status. This intuitive and minimalistic layout not only reduces navigation time but also helps users stay focused on analyzing teams rather than searching for them.</p>
+                <div className = "strengthWeakness">
+                    <div className = "item">
+                        <h3>Strengths</h3>
+                        <ul>
+                            <li>Reduces scrolling time</li>
+                            <li>Allows users to sort teams based on their preferences</li>
+                            <li>Minimizes text on the screen</li>
+                            <li>Allows users to focus on analyzing teams rather than searching for them</li>
+                        </ul>
+                    </div> 
+                    <div className = "item">
+                        <h3>Weaknesses</h3>
+                        <ul>
+                            <li>Users may not understand the purpose of the dropdown menu</li>
+                            <li>Users may not know how to use the progress-based categorization system</li>
+                            <li>Users may not know how to use the drag and drop feature</li>
+                            <li>A few bugs when dragging and dropping teams</li>
+                            <li>When users refresh the screen, it removes their prigress </li>
+                    </div> 
+                    <div class = "feedback">
+                        <h3>Feedback</h3>
+                        <ul>
+                            <li>Didn't like the color for red, green, yellow</li>
+                            <li>User didn't like how you couldn't save your progress </li>
+                            <li>All users seemed to enjoy the feature </li>
+                            <li>Could have changed the color when you hover over the team you are about to click </li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <h2>Dropdown Menus</h2>
+                <div className = "beforeAfter">
+                    <p>Before: "Select a team" </p>
+                    <img src="img/Before2.png" alt="Before Dropdown Menus" width="70%">
+                    <p>After: "Select a team" </p>
+                    <img src="img/After2.png" alt="After Dropdown Menus" width="70%">
+                </div>
+                <p>The dropdown menu was designed to <b>minimize visual clutter</b> and maintain a clean, focused interface, allowing users to concentrate on selecting key attributes for data visualizations. By consolidating multiple options into a single compact element, the dropdown helps <b>reduce cognitive load</b> and <b>streamlines the decision-making process</b>. This approach is particularly effective when screen real estate is limited or when users need to make quick, context-specific selections. Dropdowns are also familiar UI patterns, making them <b>intuitive and efficient</b> for both novice and experienced users.</p>                <div className = "strengthWeakness">
+                <div className = "strengthWeakness">
+                    <div className = "strength">
+                        <h3>Strengths:</h3>
+                        <ul>
+                            <li>Minimizes visual clutter</li>
+                            <li>Reduces cognitive load</li>
+                            <li>Streamlines the decision-making process</li>
+                            <li>Allows users to focus on selecting key attributes for data visualizations</li>
+                            </ul>
+                    </div>
+                    <div className = "weakness">
+                        <h3>Weaknesses</h3>
+                        <ul>
+                            <li>Users may not know how to use the dropdown menu</li>
+                            <li>Some users may prefer a more traditional interface with all options visible</li>
+                        </ul>
+                
+                    </div>
+                    <div class = "feedback">
+                        <h3>Feedback</h3>
+                        <ul>
+                            <li>All users prefered the dropdown menu over the old design</li>
+                            <li>Users thought it was easy to use</li>
+                            <li>Users liked how it minimized visual clutter</li>
+                            <li>Users thought it was a good way to reduce cognitive load</li>
+                    </div>
+                </div>
+                </div>
+            </li>
+            <li>
+                <h2>Replacing Text with Less Text</h2>
+                <div className = "beforeAfter">
+                    <p>Before: "Recommended for you" </p>
+                    <img src="img/Before3.png" alt="Before Replacing Text" width="70%">
+                    <p>After: "Recommended" </p>
+                    <img src="img/After3.png" alt="After Replacing Text" width="70%">
+                </div>
+                <p>
+                    To improve usability and visual clarity, I chose to place the <em>“recommended”</em> label beneath each radio button option rather than beside it. This design decision helps establish a cleaner visual hierarchy, making it easier for users to scan and associate recommendations with specific visualization types. By positioning the recommendation as a subtle secondary cue, the interface avoids overwhelming the user while still providing helpful guidance. Additionally, this layout is more responsive and mobile-friendly, as it prevents horizontal clutter and ensures that the interface scales gracefully across different screen sizes. Overall, this approach enhances the user experience by balancing clarity, guidance, and visual simplicity.
+                </p>
+                <div className = "strengthWeakness">
+                    <div className = "strength">
+                        <h3>Strengths</h3>
+                        <ul>
+                            <li>Improves usability and visual clarity</li>
+                            <li>Establishes a cleaner visual hierarchy</li>
+                            <li>Makes it easier for users to scan and associate recommendations with specific visualization types</li>
+                            <li>More responsive and mobile-friendly</li>
+                        </ul>
+                    </div>
+                    <div className = "weakness">
+                        <h3>Weaknesses</h3>
+                        <ul>
+                            <li>Some users may prefer the traditional layout with the label beside the radio button</li>
+                            <li>Users may not understand the purpose of the recommendation</li>
+                        </ul>
+                    </div>
+                    <div class = "feedback">
+                        <h3>Feedback</h3>
+                        <ul>
+                            <li>most users preferred the simplified version.</li>
+                            <li>One user asked why it was considered "recommended" </li>
+                            <li>Users liked how it minimized visual clutter</li>
+                            <li>Users thought it was a good way to reduce cognitive load</li>
+                    </div>
+            </li>
+        </ol>
+        </div>
+    </div>
+
+</body>
+</html>

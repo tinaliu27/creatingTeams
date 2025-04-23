@@ -1,0 +1,32 @@
+.top {
+  margin-top: 145px;
+}
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  
+  .team-card {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: white;
+  }
+  
+  .team-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .team-table th, .team-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .team-table th {
+    background-color: #f4f4f4;
+  }
+  

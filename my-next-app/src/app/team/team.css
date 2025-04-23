@@ -1,0 +1,374 @@
+.teamContents {
+    background-color: #f8f9fa;
+    color: black; 
+}
+
+.pageContents {
+    margin-top: 135px;
+    padding-top: 10px; 
+}
+.teamName {
+    display: inline; 
+}
+.teamContainer {
+    display: flex;
+    background-color: white;
+    margin: 40px 30px;
+    border: 1px solid rgb(210, 210, 210);
+    padding: 10px;
+    flex-direction: column;
+}
+
+.teamSettings {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.teamSettingsDropdownMenu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 16px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.teamSettingsDropdownMenu h1 {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.arrow {
+    transition: transform 0.3s ease-in-out;
+    margin-left: auto;
+}
+
+.rotate {
+    transform: rotate(180deg);
+}
+
+.dropdownList {
+    padding: 10px;
+    border: 1px solid black;
+}
+
+/* Visualize Team Settings */
+.visualizeTeamSettingsContainer {
+    margin-top: 15px;
+}
+
+.visualizeTeamSettings {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.visualizeTeamSettings h1 {
+    font-size: 25px;
+    font-weight: 600;
+    margin-bottom: 10px; 
+}
+.visualizeTeamSettings h3{
+    padding-top: 5px; 
+    padding-bottom: 5px; 
+    font-weight: 600;
+}
+.visualizeTeamSettings p {
+    margin-top: 3px; 
+}
+
+.visualizeTeamSettings hr {
+    height: 2px;
+    color: black;
+}
+
+.visualizeTeamSettings .attributeButtons {
+    flex-direction: row;
+    display: flex;
+    gap: 20px;
+}
+
+.visualizeTeamSettings button {
+    padding: 10px;
+    display: flex;
+    border: 1px solid #2180d6;
+    color: #2180d6;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.visualizeTeamSettings button:hover {
+    color: white;
+    background-color: #2180d6;
+}
+
+.visualizeTeamSettings button.selected {
+    background-color: #2180d6;
+    color: white;
+    border: 1px solid #0056b3;
+}
+/*Table Css */
+.visualizeChartContainer .visualizationTable {
+    width: 100%;
+    border-collapse: collapse; 
+}
+
+.visualizationTable thead {
+    border-top: 1px solid gray;
+}
+
+.visualizationTable thead tr {
+    display: table-row; 
+    width: 100%;
+    text-align: center;
+}
+
+.visualizationTable tbody {
+    display: table-row-group; 
+    text-align: center;
+}
+
+.visualizationTable tbody tr {
+    display: table-row; 
+    width: 100%;
+    align-items: center;
+}
+
+.visualizationTable th,
+.visualizationTable td {
+    padding: 10px;
+    text-align: center;
+    width: auto;
+}
+.visualizationTable tbody tr:nth-child(odd) {
+    background-color: #f1f1f1; /* Light gray for every odd row */
+}
+
+.visualizationTable tbody tr:nth-child(even) {
+    background-color: white; /* White for even rows */
+}
+.visualizationTable .buttonrow {
+    background-color: transparent !important;
+}
+
+
+.visualizationTeamsContainer {
+    width: 80%; 
+    display: flex; 
+    border: 2px solid red; 
+}
+.dragDropContainer {
+    display: flex;
+    width: 100%; 
+    justify-content: space-between;
+}
+.dragDrop {
+    display: flex;
+    width: 23%; 
+}
+/*Team Selected*/
+.teamInfoContainer {
+    display: flex; 
+    width: 100%; 
+    border: 1px solid rgb(187, 187, 187); 
+}
+
+.teamInfo {
+    padding: 20px; 
+    display: flex; 
+    width: 100%; 
+    flex-direction: column;
+}
+.teamInfoAttributes {
+    display: flex; 
+    flex-direction: row;
+    width: 100%; 
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 40px; 
+}
+.studentTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .studentTable th, .studentTable td {
+    padding: 10px;
+    text-align: left; /* Aligns the text to the left */
+    border: 1px solid #ddd;
+  }
+  
+  .studentTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+  
+  .selectedTeam {
+    display: none; /* This div should not interfere with the table */
+  }
+  
+  .teamInfoAttributeInfoGraphicsContainer{
+    display: flex; 
+    width: 100%; 
+    flex-direction: row;
+    gap:50px;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .teamInfoAttributeInfoGraphicsContainer .projectPreference {
+    display: flex;
+    width: 100%; 
+    flex-direction: row;
+  }
+  .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+    display: flex;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap;
+    gap: 20px;
+    width:100%; 
+    max-width: 1000px; /* Set a fixed width */
+    border: 1px solid rgb(219, 219, 219);
+    background-color: #f1f1f1;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    max-height: 300px; 
+  }
+  .scrollable-x ul {
+    list-style: none;            
+    border-radius: 5px;   
+    padding: 10px; 
+}
+  .scrollable-x::-webkit-scrollbar {
+    height: 8px;           /* Optional: scrollbar height */
+}
+
+.scrollable-x::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Optional: scrollbar color */
+    border-radius: 4px;
+}
+
+.scrollable-x::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Optional: scrollbar track color */
+}
+.scrollableLeft {
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid black;
+    width: 150px; 
+
+}
+.teamName::before {
+    content: "";
+    display: none;
+  }
+  
+
+/* Media Queries */
+@media screen and (max-width: 1350px) {
+    .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+        max-width: 900px;
+        gap: 10px;
+        padding: 5px;
+        max-height: 200px;
+        transition: 1s ease-in-out;
+    }
+    .studentTable {
+        max-width: 900px;
+        overflow-x: auto;
+    }
+}
+
+@media screen and (max-width: 1208px) {
+    .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+        max-width: 700px;
+        gap: 10px;
+        padding: 5px;
+        max-height: 200px;
+        transition: 1s ease-in-out;
+    }
+    .studentTable {
+        max-width: 700px;
+        overflow-x: auto;
+    }
+}
+
+@media screen and (max-width: 1008px) {
+    .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+        max-width: 500px;
+        gap: 10px;
+        padding: 5px;
+        max-height: 200px;
+        transition: 1s ease-in-out;
+    }
+    .studentTable {
+        max-width: 500px;
+        overflow-x: auto;
+    }
+}
+
+@media screen and (max-width: 808px) {
+    .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+        max-width: 400px;
+        gap: 5px;
+        padding: 5px;
+        max-height: 150px;
+        transition: 1s ease-in-out;
+    }
+    .studentTable {
+        max-width: 400px;
+        overflow-x: auto;
+    }
+    .scrollableLeft {
+        width: 120px;
+        border: "1px solid black",
+
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .teamInfoAttributeInfoGraphicsContainer .scrollable-x {
+        max-width: 300px;
+        gap: 5px;
+        padding: 5px;
+        max-height: 150px;
+        transition: 1s ease-in-out;
+    }
+    .studentTable {
+        max-width: 300px;
+        overflow-x: auto;
+    }
+    .scrollableLeft {
+        width: 60px;
+        padding: 0px;
+        margin: 0px; 
+        border: 1px solid black;
+        transition: 0.3s ease-in-out;
+    }
+    .teamName {
+        color: inherit;
+        font: inherit;
+        /* Hide the full name text */
+        color: transparent;
+        position: relative;
+      }
+      .teamName::before {
+        content: attr(data-number);
+        display: inline;
+        color: black; /* or inherit, or your preferred color */
+        position: absolute;
+        left: 0;
+        right: 0;
+        width: 100%;
+        text-align: center;
+      }
+}
